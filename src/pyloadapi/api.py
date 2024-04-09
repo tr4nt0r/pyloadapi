@@ -67,9 +67,10 @@ class PyLoadAPI:
                 _LOGGER.debug(
                     "Response from %s [%s]: %s", url, r.status, (await r.text())
                 )
-                r.raise_for_status()
+
                 if r.status == HTTPStatus.UNAUTHORIZED:
                     raise InvalidAuth
+                r.raise_for_status()
                 try:
                     data = await r.json()
                     return StatusServerResponse.from_dict(data)
