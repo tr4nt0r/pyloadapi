@@ -44,7 +44,7 @@ class PyLoadAPI:
                 r.raise_for_status()
                 try:
                     data = await r.json()
-                    if not r:
+                    if not data:
                         raise InvalidAuth
                     return LoginResponse.from_dict(data)
                 except JSONDecodeError as e:
