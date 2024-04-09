@@ -19,6 +19,10 @@ class Response:
         """Convert to dict."""
         return asdict(self)
 
+    def __getitem__(self, key: str) -> Any:
+        """Return an item."""
+        return getattr(self, key)
+
 
 @dataclass
 class StatusServerResponse(Response):
