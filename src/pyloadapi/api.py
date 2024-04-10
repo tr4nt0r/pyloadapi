@@ -26,7 +26,6 @@ class PyLoadAPI:
         """Initialize pyLoad API."""
         self._session = session
         self.api_url = api_url
-        self.status = None
         self.username = username
         self.password = password
 
