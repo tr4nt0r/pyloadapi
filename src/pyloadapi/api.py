@@ -4,7 +4,6 @@ from http import HTTPStatus
 from json import JSONDecodeError
 import logging
 import traceback
-from typing import Optional
 
 import aiohttp
 
@@ -21,13 +20,12 @@ class PyLoadAPI:
         self,
         session: aiohttp.ClientSession,
         api_url: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
+        username: str,
+        password: str,
     ) -> None:
         """Initialize pyLoad API."""
         self._session = session
         self.api_url = api_url
-        self.status = None
         self.username = username
         self.password = password
 
