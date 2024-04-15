@@ -36,9 +36,8 @@ class PyLoadAPI:
         url = f"{self.api_url}api/login"
         try:
             async with self._session.post(url, data=user_data) as r:
-                _LOGGER.debug(
-                    "Response from %s [%s]: %s", url, r.status, (await r.text())
-                )
+                _LOGGER.debug("Response from %s [%s]: %s", url, r.status, r.text)
+
                 r.raise_for_status()
                 try:
                     data = await r.json()
@@ -46,7 +45,7 @@ class PyLoadAPI:
                         raise InvalidAuth
                     return LoginResponse.from_dict(data)
                 except JSONDecodeError as e:
-                    _LOGGER.error(
+                    _LOGGER.debug(
                         "Exception: Cannot parse login response:\n %s",
                         traceback.format_exc(),
                     )
@@ -54,7 +53,7 @@ class PyLoadAPI:
                         "Login failed during parsing of request response."
                     ) from e
         except (TimeoutError, aiohttp.ClientError) as e:
-            _LOGGER.error("Exception: Cannot login:\n %s", traceback.format_exc())
+            _LOGGER.debug("Exception: Cannot login:\n %s", traceback.format_exc())
             raise CannotConnect from e
 
     async def get_status(self) -> StatusServerResponse:
@@ -62,9 +61,7 @@ class PyLoadAPI:
         url = f"{self.api_url}api/statusServer"
         try:
             async with self._session.get(url) as r:
-                _LOGGER.debug(
-                    "Response from %s [%s]: %s", url, r.status, (await r.text())
-                )
+                _LOGGER.debug("Response from %s [%s]: %s", url, r.status, r.text)
 
                 if r.status == HTTPStatus.UNAUTHORIZED:
                     raise InvalidAuth
@@ -73,7 +70,7 @@ class PyLoadAPI:
                     data = await r.json()
                     return StatusServerResponse.from_dict(data)
                 except JSONDecodeError as e:
-                    _LOGGER.error(
+                    _LOGGER.debug(
                         "Exception: Cannot parse status response:\n %s",
                         traceback.format_exc(),
                     )
@@ -82,7 +79,7 @@ class PyLoadAPI:
                     ) from e
 
         except (TimeoutError, aiohttp.ClientError) as e:
-            _LOGGER.error("Exception: Cannot get status:\n %s", traceback.format_exc())
+            _LOGGER.debug("Exception: Cannot get status:\n %s", traceback.format_exc())
             raise CannotConnect("Get status failed due to request exception") from e
 
     async def version(self) -> str:
@@ -90,9 +87,7 @@ class PyLoadAPI:
         url = f"{self.api_url}api/getServerVersion"
         try:
             async with self._session.get(url) as r:
-                _LOGGER.debug(
-                    "Response from %s [%s]: %s", url, r.status, (await r.text())
-                )
+                _LOGGER.debug("Response from %s [%s]: %s", url, r.status, r.text)
                 if r.status == HTTPStatus.UNAUTHORIZED:
                     raise InvalidAuth
                 r.raise_for_status()
@@ -100,7 +95,7 @@ class PyLoadAPI:
                     data = await r.json()
                     return str(data)
                 except JSONDecodeError as e:
-                    _LOGGER.error(
+                    _LOGGER.debug(
                         "Exception: Cannot parse status response:\n %s",
                         traceback.format_exc(),
                     )
@@ -108,5 +103,5 @@ class PyLoadAPI:
                         "Get version failed during parsing of request response."
                     ) from e
         except (TimeoutError, aiohttp.ClientError) as e:
-            _LOGGER.error("Exception: Cannot get version:\n %s", traceback.format_exc())
+            _LOGGER.debug("Exception: Cannot get version:\n %s", traceback.format_exc())
             raise CannotConnect("Get version failed due to request exception") from e
