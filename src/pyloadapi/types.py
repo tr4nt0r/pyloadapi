@@ -1,6 +1,7 @@
 """Types for PyLoadAPI."""
 
 from dataclasses import asdict, dataclass
+from enum import StrEnum
 from typing import Any, List, Type, TypeVar
 
 T = TypeVar("T")
@@ -50,3 +51,19 @@ class LoginResponse(Response):
     perms: int
     template: str
     _flashes: List[Any]
+
+
+class PyLoadCommand(StrEnum):
+    """Set status commands."""
+
+    STATUS = "statusServer"
+    PAUSE = "pauseServer"
+    UNPAUSE = "unpauseServer"
+    TOGGLE_PAUSE = "togglePause"
+    ABORT_ALL = "stopAllDownloads"
+    RESTART_FAILED = "restartFailed"
+    TOGGLE_RECONNECT = "toggleReconnect"
+    DELETE_FINISHED = "deleteFinished"
+    RESTART = "restart"
+    VERSION = "getServerVersion"
+    FREESPACE = "freeSpace"
