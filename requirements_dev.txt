@@ -1,5 +1,5 @@
 aiohttp==3.9.5
-mypy==1.9.0
+mypy==1.10.0
 pre-commit==3.7.0
 python-dotenv==1.0.1
 ruff==0.4.2
