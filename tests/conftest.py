@@ -51,3 +51,14 @@ def aioclient_mock() -> Generator[aioresponses, Any, None]:
     """Mock Aiohttp client requests."""
     with aioresponses() as m:
         yield m
+
+
+def parametrize_exception(
+    exception: Exception,
+    expected: Any,
+    mocked_aiohttp: aioresponses,
+) -> Any:
+    """Parametrize exceptions."""
+    mocked_aiohttp.post(r".*", exception=exception)
+
+    return pytest.raises(expected)
