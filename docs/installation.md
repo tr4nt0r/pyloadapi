@@ -19,19 +19,19 @@ can guide you through the process.
 ## From sources
 
 The sources for PyLoadAPI can be downloaded from the [Github
-repo](https://github.com/tr4nt0r/PyLoadAPI).
+repo](https://github.com/tr4nt0r/pyloadapi).
 
 You can either clone the public repository:
 
 ``` console
-$ git clone git://github.com/tr4nt0r/PyLoadAPI
+$ git clone git://github.com/tr4nt0r/pyloadapi
 ```
 
 Or download the
-[tarball](https://github.com/tr4nt0r/PyLoadAPI/tarball/master):
+[tarball](https://github.com/tr4nt0r/pyloadapi/tarball/master):
 
 ``` console
-$ curl -OJL https://github.com/tr4nt0r/PyLoadAPI/tarball/master
+$ curl -OJL https://github.com/tr4nt0r/pyloadapi/tarball/master
 ```
 
 Once you have a copy of the source, you can install it with:
