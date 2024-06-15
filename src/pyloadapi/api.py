@@ -73,7 +73,6 @@ class PyLoadAPI:
                 r.raise_for_status()
                 try:
                     data = await r.json()
-                    return data
                 except JSONDecodeError as e:
                     _LOGGER.debug(
                         "Exception: Cannot parse response for %s:\n %s",
@@ -83,6 +82,8 @@ class PyLoadAPI:
                     raise ParserError(
                         "Get {command} failed during parsing of request response."
                     ) from e
+
+                return data
 
         except (TimeoutError, aiohttp.ClientError) as e:
             _LOGGER.debug(
@@ -97,12 +98,12 @@ class PyLoadAPI:
     async def get_status(self) -> StatusServerResponse:
         """Get general status information of pyLoad.
 
-        Returns:
+        Returns
         -------
             StatusServerResponse
                 Status information of pyLoad
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -117,7 +118,7 @@ class PyLoadAPI:
     async def pause(self) -> None:
         """Pause download queue.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -133,7 +134,7 @@ class PyLoadAPI:
     async def unpause(self) -> None:
         """Unpause download queue.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -149,7 +150,7 @@ class PyLoadAPI:
     async def toggle_pause(self) -> None:
         """Toggle pause download queue.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -165,7 +166,7 @@ class PyLoadAPI:
     async def stop_all_downloads(self) -> None:
         """Abort all running downloads.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -181,7 +182,7 @@ class PyLoadAPI:
     async def restart_failed(self) -> None:
         """Restart all failed files.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -197,7 +198,7 @@ class PyLoadAPI:
     async def toggle_reconnect(self) -> None:
         """Toggle reconnect activation.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -208,7 +209,7 @@ class PyLoadAPI:
     async def delete_finished(self) -> None:
         """Delete all finished files and completly finished packages.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -224,7 +225,7 @@ class PyLoadAPI:
     async def restart(self) -> None:
         """Restart pyload core.
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -240,12 +241,12 @@ class PyLoadAPI:
     async def version(self) -> str:
         """Get version of pyLoad.
 
-        Returns:
+        Returns
         -------
             str:
                 pyLoad Version
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
@@ -260,12 +261,12 @@ class PyLoadAPI:
     async def free_space(self) -> int:
         """Get available free space at download directory in bytes.
 
-        Returns:
+        Returns
         -------
             int:
                 free space at download directory in bytes
 
-        Raises:
+        Raises
         ------
             CannotConnect:
                 if request fails
