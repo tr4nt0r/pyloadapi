@@ -25,7 +25,7 @@ of the server responses and available commands.
 
 from dataclasses import asdict, dataclass
 from enum import StrEnum
-from typing import Any, List, Type, TypeVar
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
@@ -44,7 +44,7 @@ class Response:
     """
 
     @classmethod
-    def from_dict(cls: Type[T], d: dict[Any, Any]) -> T:
+    def from_dict(cls: type[T], d: dict[Any, Any]) -> T:
         """Create an instance of the Response class from a dictionary.
 
         Parameters
@@ -156,7 +156,7 @@ class LoginResponse(Response):
     role: int
     perms: int
     template: str
-    _flashes: List[Any]
+    _flashes: list[Any]
 
 
 class PyLoadCommand(StrEnum):
