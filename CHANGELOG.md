@@ -13,7 +13,7 @@
 * Add pytest unit testing for login method
 * Refactored `get_status` and `version` methods
 
-### 1.0.3
+## 1.0.3
 
 * Change logging to debug
 
