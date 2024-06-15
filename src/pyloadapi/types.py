@@ -1,4 +1,27 @@
-"""Types for PyLoadAPI."""
+"""Types for PyLoadAPI.
+
+This module defines the data structures and command enumerations used by the PyLoadAPI.
+The classes included in this module represent various responses from the PyLoad server
+and enumerate the commands that can be sent to the server.
+
+Classes
+-------
+Response
+    Base class for all response types, providing methods for converting to and from dictionaries.
+StatusServerResponse
+    Dataclass for status server response, containing various attributes related to server status.
+LoginResponse
+    Dataclass for login response, containing user information and session details.
+PyLoadCommand
+    Enumeration of commands that can be sent to the PyLoad server.
+
+Usage
+-----
+These classes are used to structure the data received from and sent to the PyLoad server.
+They facilitate interaction with the PyLoadAPI by providing clear and structured representations
+of the server responses and available commands.
+
+"""
 
 from dataclasses import asdict, dataclass
 from enum import StrEnum
@@ -9,25 +32,87 @@ T = TypeVar("T")
 
 @dataclass
 class Response:
-    """Base Response class."""
+    """Base Response class.
+
+    Methods
+    -------
+    from_dict(cls, d)
+        Class method that converts a dictionary to an instance of the Response class.
+    to_dict(self)
+        Converts the instance of the Response class to a dictionary.
+
+    """
 
     @classmethod
     def from_dict(cls: Type[T], d: dict[Any, Any]) -> T:
-        """Convert from dict."""
+        """Create an instance of the Response class from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary to convert.
+
+        Returns
+        -------
+        T
+            An instance of the Response class.
+
+        """
         return cls(**d)
 
     def to_dict(self) -> dict[str, Any] | Any:
-        """Convert to dict."""
+        """Convert the Response instance to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary representation of the Response instance.
+
+        """
         return asdict(self)
 
     def __getitem__(self, key: str) -> Any:
-        """Return an item."""
+        """Get the value associated with the given key.
+
+        Parameters
+        ----------
+        key : str
+            The key for which the value is to be returned.
+
+        Returns
+        -------
+        Any
+            The value associated with the specified key.
+
+        """
         return getattr(self, key)
 
 
 @dataclass
 class StatusServerResponse(Response):
-    """Dataclass for statusServer response."""
+    """Dataclass for status server response.
+
+    Attributes
+    ----------
+    pause : bool
+        Indicates if the server is paused. If True, `download` is False.
+    active : int
+        Number of active downloads.
+    queue : int
+        Number of downloads in the queue.
+    total : int
+        Total number of downloads.
+    speed : float
+        Current download speed of the server.
+    download : bool
+        Indicates if the server is not paused and will start downloading
+        if there are files in the queue. If True, `pause` is False.
+    reconnect : bool
+        Indicates if auto-reconnect is enabled.
+    captcha : bool
+        Indicates if a captcha request is active.
+
+    """
 
     pause: bool
     active: int
@@ -41,7 +126,28 @@ class StatusServerResponse(Response):
 
 @dataclass
 class LoginResponse(Response):
-    """Dataclass for statusServer response."""
+    """Dataclass for login response.
+
+    Attributes
+    ----------
+    _permanent : bool
+        Indicates if the session is permanent.
+    authenticated : bool
+        Indicates if the user is authenticated.
+    id : int
+        The ID of the user.
+    name : str
+        The name of the user.
+    role : int
+        The role ID of the user.
+    perms : int
+        The permissions level of the user.
+    template : str
+        The template associated with the user.
+    _flashes : list of Any
+        A list of flash messages.
+
+    """
 
     _permanent: bool
     authenticated: bool
@@ -54,7 +160,34 @@ class LoginResponse(Response):
 
 
 class PyLoadCommand(StrEnum):
-    """Set status commands."""
+    """Set of status commands for the PyLoad server.
+
+    Attributes
+    ----------
+    STATUS : str
+        Command to get the server status.
+    PAUSE : str
+        Command to pause the server.
+    UNPAUSE : str
+        Command to unpause the server.
+    TOGGLE_PAUSE : str
+        Command to toggle the pause state of the server.
+    ABORT_ALL : str
+        Command to stop all downloads.
+    RESTART_FAILED : str
+        Command to restart failed downloads.
+    TOGGLE_RECONNECT : str
+        Command to toggle the reconnect feature.
+    DELETE_FINISHED : str
+        Command to delete finished downloads.
+    RESTART : str
+        Command to restart the server.
+    VERSION : str
+        Command to get the server version.
+    FREESPACE : str
+        Command to get the free space in the download folder of the server.
+
+    """
 
     STATUS = "statusServer"
     PAUSE = "pauseServer"
