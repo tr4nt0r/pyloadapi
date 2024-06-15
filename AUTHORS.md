@@ -3,7 +3,7 @@
 
 ## Development Lead
 
-* Manfred Dennerlein Rodelo <manni@zapto.de>
+* Manfred Dennerlein Rodelo <manfred@dennerlein.name>
 
 ## Contributors
 
