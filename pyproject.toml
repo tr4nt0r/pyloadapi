@@ -21,8 +21,8 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://tr4nt0r.github.io/PyLoadAPI/"
-Source = "https://github.com/tr4nt0r/PyLoadAPI"
+Documentation = "https://tr4nt0r.github.io/pyloadapi"
+Source = "https://github.com/tr4nt0r/pyloadapi"
 
 [tool.hatch.version]
 source = "regex_commit"

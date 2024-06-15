@@ -9,7 +9,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at <https://github.com/tr4nt0r/PyLoadAPI/issues>.
+Report bugs at <https://github.com/tr4nt0r/pyloadapi/issues>.
 
 If you are reporting a bug, please include:
 
@@ -38,7 +38,7 @@ posts, articles, and such.
 ### Submit Feedback
 
 The best way to send feedback is to file an issue at
-<https://github.com/tr4nt0r/PyLoadAPI/issues>.
+<https://github.com/tr4nt0r/pyloadapi/issues>.
 
 If you are proposing a feature:
 
@@ -58,7 +58,7 @@ local development.
 2.  Clone your fork locally:
 
     ``` shell
-    $ git clone git@github.com:tr4nt0r/PyLoadAPI.git
+    $ git clone git@github.com:tr4nt0r/pyloadapi.git
     ```
 
 3.  Install your local copy into a virtualenv. Assuming you have
@@ -105,7 +105,7 @@ Before you submit a pull request, check that it meets these guidelines:
     Put your new functionality into a function with a docstring, and add
     the feature to the list in README.rst.
 3.  The pull request should work for Python 3.11 and 3.12. Check
-    <https://github.com/tr4nt0r/PyLoadAPI/actions/workflows/pytest.yaml>
+    <https://github.com/tr4nt0r/pyloadapi/actions/workflows/pytest.yaml>
     and make sure that the tests pass for all supported Python versions.
 
 ## Tips

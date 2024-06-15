@@ -12,7 +12,7 @@
 
 ---
 
-**Documentation**: <a href="https://tr4nt0r.github.io/pyloadapi/" target="_blank">https://tr4nt0r.github.io/pyloadapi/</a>
+**Documentation**: <a href="https://tr4nt0r.github.io/pyloadapi" target="_blank">https://tr4nt0r.github.io/pyloadapi</a>
 
 **Source Code**: <a href="https://github.com/tr4nt0r/pyloadapi" target="_blank">https://github.com/tr4nt0r/pyloadapi</a>
 
