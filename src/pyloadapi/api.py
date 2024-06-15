@@ -1,4 +1,10 @@
-"""Simple wrapper for pyLoad's API."""
+"""Simple wrapper for pyLoad's API.
+
+This module provides a simplified interface (PyLoadAPI class) to interact with
+pyLoad's API using aiohttp for asynchronous HTTP requests. It handles login
+authentication and provides methods to perform various operations such as
+pausing downloads, restarting pyLoad, retrieving status information, and more.
+"""
 
 from http import HTTPStatus
 from json import JSONDecodeError
@@ -24,14 +30,43 @@ class PyLoadAPI:
         username: str,
         password: str,
     ) -> None:
-        """Initialize pyLoad API."""
+        """Initialize the PyLoadAPI wrapper.
+
+        Parameters
+        ----------
+        session : aiohttp.ClientSession
+            The aiohttp client session to use for making API requests.
+        api_url : str
+            The base URL of the pyLoad API.
+        username : str
+            Username for authenticating to the pyLoad API.
+        password : str
+            Password for authenticating to the pyLoad API.
+
+        """
         self._session = session
         self.api_url = api_url
         self.username = username
         self.password = password
 
     async def login(self) -> LoginResponse:
-        """Login to pyLoad API."""
+        """Authenticate and login to the pyLoad API.
+
+        Returns
+        -------
+        LoginResponse
+            Object containing authentication response data.
+
+        Raises
+        ------
+        CannotConnect
+            If the login request fails due to a connection issue.
+        InvalidAuth
+            If authentication credentials are invalid.
+        ParserError
+            If there's an error parsing the login response.
+
+        """
 
         user_data = {"username": self.username, "password": self.password}
         url = f"{self.api_url}api/login"
@@ -60,7 +95,41 @@ class PyLoadAPI:
     async def get(
         self, command: PyLoadCommand, params: dict[str, Any] | None = None
     ) -> Any:
-        """Execute a pyLoad command."""
+        """Execute a pyLoad API command.
+
+        Parameters
+        ----------
+        command : PyLoadCommand
+            The pyLoad command to execute.
+        params : Optional[dict[str, Any]], optional
+            Optional parameters to include in the request query string, by default None.
+
+        Returns
+        -------
+        Any
+            The response data from the API.
+
+        Raises
+        ------
+        CannotConnect
+            If the request to the API fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an error parsing the API response.
+
+        Notes
+        -----
+        This method sends an asynchronous GET request to the pyLoad API endpoint
+        specified by `command`, with optional parameters `params`. It handles
+        authentication errors, HTTP status checks, and parses the JSON response.
+
+        Example
+        -------
+        To retrieve the status of pyLoad, use:
+        >>> status = await pyload_api.get(PyLoadCommand.STATUS)
+
+        """
         url = f"{self.api_url}api/{command}"
         try:
             async with self._session.get(url, params=params) as r:
@@ -100,13 +169,29 @@ class PyLoadAPI:
 
         Returns
         -------
-            StatusServerResponse
-                Status information of pyLoad
+        StatusServerResponse
+            Status information of pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to retrieve status information fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to fetch
+        general status information. It internally calls `get` with the command
+        `PyLoadCommand.STATUS` and parses the JSON response into a
+        `StatusServerResponse` object.
+
+        Example
+        -------
+        To get the current status of pyLoad, use:
+        >>> status = await pyload_api.get_status()
 
         """
         try:
@@ -116,12 +201,26 @@ class PyLoadAPI:
             raise CannotConnect("Get status failed due to request exception") from e
 
     async def pause(self) -> None:
-        """Pause download queue.
+        """Pause the download queue in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to pause the download queue fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to pause the download queue.
+        It internally calls `get` with the command `PyLoadCommand.PAUSE`.
+
+        Example
+        -------
+        To pause the download queue, use:
+        >>> await pyload_api.pause()
 
         """
         try:
@@ -132,12 +231,26 @@ class PyLoadAPI:
             ) from e
 
     async def unpause(self) -> None:
-        """Unpause download queue.
+        """Unpause the download queue in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to unpause the download queue fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to unpause the download queue.
+        It internally calls `get` with the command `PyLoadCommand.UNPAUSE`.
+
+        Example
+        -------
+        To unpause the download queue, use:
+        >>> await pyload_api.unpause()
 
         """
         try:
@@ -148,12 +261,26 @@ class PyLoadAPI:
             ) from e
 
     async def toggle_pause(self) -> None:
-        """Toggle pause download queue.
+        """Toggle the pause state of the download queue in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to toggle the pause state of the download queue fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to toggle the pause state of the download queue.
+        It internally calls `get` with the command `PyLoadCommand.TOGGLE_PAUSE`.
+
+        Example
+        -------
+        To toggle the pause state of the download queue, use:
+        >>> await pyload_api.toggle_pause()
 
         """
         try:
@@ -164,12 +291,26 @@ class PyLoadAPI:
             ) from e
 
     async def stop_all_downloads(self) -> None:
-        """Abort all running downloads.
+        """Abort all running downloads in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to abort all running downloads fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to abort all running downloads.
+        It internally calls `get` with the command `PyLoadCommand.ABORT_ALL`.
+
+        Example
+        -------
+        To abort all running downloads, use:
+        >>> await pyload_api.stop_all_downloads()
 
         """
         try:
@@ -180,12 +321,26 @@ class PyLoadAPI:
             ) from e
 
     async def restart_failed(self) -> None:
-        """Restart all failed files.
+        """Restart all failed downloads in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to restart all failed downloads fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to restart all failed downloads.
+        It internally calls `get` with the command `PyLoadCommand.RESTART_FAILED`.
+
+        Example
+        -------
+        To restart all failed downloads, use:
+        >>> await pyload_api.restart_failed()
 
         """
         try:
@@ -196,23 +351,51 @@ class PyLoadAPI:
             ) from e
 
     async def toggle_reconnect(self) -> None:
-        """Toggle reconnect activation.
+        """Toggle reconnect activation in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to toggle reconnect activation fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to toggle the reconnect activation.
+        It internally calls `get` with the command `PyLoadCommand.TOGGLE_RECONNECT`.
+
+        Example
+        -------
+        To toggle reconnect activation, use:
+        >>> await pyload_api.toggle_reconnect()
 
         """
         await self.get(PyLoadCommand.TOGGLE_RECONNECT)
 
     async def delete_finished(self) -> None:
-        """Delete all finished files and completly finished packages.
+        """Delete all finished files and completely finished packages in pyLoad.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to delete finished files and packages fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to delete all finished files and packages.
+        It internally calls `get` with the command `PyLoadCommand.DELETE_FINISHED`.
+
+        Example
+        -------
+        To delete all finished files and packages, use:
+        >>> await pyload_api.delete_finished()
 
         """
         try:
@@ -223,12 +406,26 @@ class PyLoadAPI:
             ) from e
 
     async def restart(self) -> None:
-        """Restart pyload core.
+        """Restart the pyLoad core.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to restart the pyLoad core fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to restart its core functionality.
+        It internally calls `get` with the command `PyLoadCommand.RESTART`.
+
+        Example
+        -------
+        To restart the pyLoad core, use:
+        >>> await pyload_api.restart()
 
         """
         try:
@@ -239,17 +436,31 @@ class PyLoadAPI:
             ) from e
 
     async def version(self) -> str:
-        """Get version of pyLoad.
+        """Get the version of pyLoad.
 
         Returns
         -------
-            str:
-                pyLoad Version
+        str
+            The version of pyLoad as a string.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to get the pyLoad version fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to retrieve its version.
+        It internally calls `get` with the command `PyLoadCommand.VERSION`.
+
+        Example
+        -------
+        To fetch the version of pyLoad, use:
+        >>> version = await pyload_api.version()
 
         """
         try:
@@ -259,17 +470,32 @@ class PyLoadAPI:
             raise CannotConnect("Get version failed due to request exception") from e
 
     async def free_space(self) -> int:
-        """Get available free space at download directory in bytes.
+        """Get the available free space at the download directory in bytes.
 
         Returns
         -------
-            int:
-                free space at download directory in bytes
+        int
+            The amount of free space available at the download directory in bytes.
 
         Raises
         ------
-            CannotConnect:
-                if request fails
+        CannotConnect
+            If the request to get the free space information fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Notes
+        -----
+        This method sends an asynchronous request to the pyLoad API to retrieve the available
+        free space at the download directory. It internally calls `get` with the command
+        `PyLoadCommand.FREESPACE`.
+
+        Example
+        -------
+        To fetch the available free space at the download directory, use:
+        >>> free_space = await pyload_api.free_space()
 
         """
         try:

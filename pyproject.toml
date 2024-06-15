@@ -80,6 +80,9 @@ pythonpath = [
 extend-select = ["I", "TRY", "UP", "D", "W"]
 extend-ignore = ["D213", "D202", "D203", "D213", "UP038", "TRY003"]
 
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 
