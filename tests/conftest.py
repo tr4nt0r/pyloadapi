@@ -1,6 +1,7 @@
 """Fixtures for PyLoadAPI Tests."""
 
-from typing import Any, AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator
+from typing import Any
 
 import aiohttp
 from aioresponses import aioresponses
@@ -24,6 +25,17 @@ TEST_LOGIN_RESPONSE = {
     "perms": 0,
     "template": "default",
     "_flashes": [["message", "Logged in successfully"]],
+}
+
+TEST_STATUS_RESPONSE = {
+    "pause": False,
+    "active": 10,
+    "queue": 5,
+    "total": 15,
+    "speed": 9999999,
+    "download": True,
+    "reconnect": False,
+    "captcha": False,
 }
 
 

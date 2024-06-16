@@ -11,10 +11,16 @@ from aioresponses import aioresponses
 from dotenv import load_dotenv
 import pytest
 
-from pyloadapi.api import PyLoadAPI
-from pyloadapi.exceptions import CannotConnect, InvalidAuth, ParserError
+from pyloadapi import (
+    CannotConnect,
+    InvalidAuth,
+    ParserError,
+    PyLoadAPI,
+    StatusServerResponse,
+)
+from pyloadapi.types import LoginResponse
 
-from .conftest import TEST_API_URL, TEST_LOGIN_RESPONSE
+from .conftest import TEST_API_URL, TEST_LOGIN_RESPONSE, TEST_STATUS_RESPONSE
 
 load_dotenv()
 
@@ -37,6 +43,49 @@ async def test_login_invalidauth(
 
     with pytest.raises(InvalidAuth):
         await pyload.login()
+
+
+@pytest.mark.parametrize(
+    ("method", "result"),
+    [
+        ("version", "0.5.0"),
+        ("get_status", StatusServerResponse.from_dict(TEST_STATUS_RESPONSE)),
+        ("pause", None),
+        ("unpause", None),
+        ("toggle_pause", None),
+        ("stop_all_downloads", None),
+        ("restart_failed", None),
+        ("toggle_reconnect", None),
+        ("delete_finished", None),
+        ("restart", None),
+        ("free_space", 100000),
+    ],
+)
+async def test_api_methods(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses, method: str, result: Any
+) -> None:
+    """Test login."""
+
+    mocked_aiohttp.get(
+        f"{TEST_API_URL}api/getServerVersion",
+        payload="0.5.0",
+    )
+    mocked_aiohttp.get(
+        f"{TEST_API_URL}api/statusServer",
+        payload=TEST_STATUS_RESPONSE,
+    )
+    mocked_aiohttp.get(f"{TEST_API_URL}api/freeSpace", payload=100000)
+    mocked_aiohttp.get(re.compile(r".*"))
+
+    assert await getattr(pyload, method)() == result
+
+
+def test_dataclass() -> None:
+    """Test methods of Response dataclass."""
+    result = LoginResponse.from_dict(TEST_LOGIN_RESPONSE)
+
+    assert result.to_dict() == TEST_LOGIN_RESPONSE
+    assert result["name"] == "test-username"
 
 
 @pytest.mark.parametrize(
