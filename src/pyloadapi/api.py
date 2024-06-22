@@ -76,10 +76,7 @@ class PyLoadAPI:
 
                 r.raise_for_status()
                 try:
-                    data = await r.json()
-                    if not data:
-                        raise InvalidAuth
-                    return LoginResponse.from_dict(data)
+                    data: LoginResponse = await r.json()
                 except (JSONDecodeError, TypeError, aiohttp.ContentTypeError) as e:
                     _LOGGER.debug(
                         "Exception: Cannot parse login response:\n %s",
@@ -88,6 +85,10 @@ class PyLoadAPI:
                     raise ParserError(
                         "Login failed during parsing of request response."
                     ) from e
+                else:
+                    if not data:
+                        raise InvalidAuth
+                    return data
         except (TimeoutError, aiohttp.ClientError) as e:
             _LOGGER.debug("Exception: Cannot login:\n %s", traceback.format_exc())
             raise CannotConnect from e
@@ -199,10 +200,11 @@ class PyLoadAPI:
 
         """
         try:
-            r = await self.get(PyLoadCommand.STATUS)
-            return StatusServerResponse.from_dict(r)
+            data: StatusServerResponse = await self.get(PyLoadCommand.STATUS)
         except CannotConnect as e:
             raise CannotConnect("Get status failed due to request exception") from e
+        else:
+            return data
 
     async def pause(self) -> None:
         """Pause the download queue in pyLoad.
