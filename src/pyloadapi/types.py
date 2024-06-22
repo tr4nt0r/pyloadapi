@@ -23,73 +23,13 @@ of the server responses and available commands.
 
 """
 
-from dataclasses import asdict, dataclass
 from enum import StrEnum
-from typing import Any, TypeVar
+from typing import Any, TypedDict, TypeVar
 
 T = TypeVar("T")
 
 
-@dataclass
-class Response:
-    """Base Response class.
-
-    Methods
-    -------
-    from_dict(cls, d)
-        Class method that converts a dictionary to an instance of the Response class.
-    to_dict(self)
-        Converts the instance of the Response class to a dictionary.
-
-    """
-
-    @classmethod
-    def from_dict(cls: type[T], d: dict[Any, Any]) -> T:
-        """Create an instance of the Response class from a dictionary.
-
-        Parameters
-        ----------
-        d : dict
-            The dictionary to convert.
-
-        Returns
-        -------
-        T
-            An instance of the Response class.
-
-        """
-        return cls(**d)
-
-    def to_dict(self) -> dict[str, Any] | Any:
-        """Convert the Response instance to a dictionary.
-
-        Returns
-        -------
-        dict
-            A dictionary representation of the Response instance.
-
-        """
-        return asdict(self)
-
-    def __getitem__(self, key: str) -> Any:
-        """Get the value associated with the given key.
-
-        Parameters
-        ----------
-        key : str
-            The key for which the value is to be returned.
-
-        Returns
-        -------
-        Any
-            The value associated with the specified key.
-
-        """
-        return getattr(self, key)
-
-
-@dataclass
-class StatusServerResponse(Response):
+class StatusServerResponse(TypedDict):
     """Dataclass for status server response.
 
     Attributes
@@ -124,8 +64,7 @@ class StatusServerResponse(Response):
     captcha: bool
 
 
-@dataclass
-class LoginResponse(Response):
+class LoginResponse(TypedDict):
     """Dataclass for login response.
 
     Attributes

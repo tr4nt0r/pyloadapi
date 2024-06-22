@@ -8,7 +8,7 @@ from aioresponses import aioresponses
 from dotenv import load_dotenv
 import pytest
 
-from pyloadapi.api import PyLoadAPI
+from pyloadapi import PyLoadAPI, StatusServerResponse
 
 load_dotenv()
 
@@ -27,12 +27,12 @@ TEST_LOGIN_RESPONSE = {
     "_flashes": [["message", "Logged in successfully"]],
 }
 
-TEST_STATUS_RESPONSE = {
+TEST_STATUS_RESPONSE: StatusServerResponse = {
     "pause": False,
     "active": 10,
     "queue": 5,
     "total": 15,
-    "speed": 9999999,
+    "speed": 9999999.0,
     "download": True,
     "reconnect": False,
     "captcha": False,

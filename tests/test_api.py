@@ -11,14 +11,7 @@ from aioresponses import aioresponses
 from dotenv import load_dotenv
 import pytest
 
-from pyloadapi import (
-    CannotConnect,
-    InvalidAuth,
-    ParserError,
-    PyLoadAPI,
-    StatusServerResponse,
-)
-from pyloadapi.types import LoginResponse
+from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
 
 from .conftest import TEST_API_URL, TEST_LOGIN_RESPONSE, TEST_STATUS_RESPONSE
 
@@ -32,7 +25,7 @@ async def test_login(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
     )
 
     result = await pyload.login()
-    assert result.to_dict() == TEST_LOGIN_RESPONSE
+    assert result == TEST_LOGIN_RESPONSE
 
 
 async def test_login_invalidauth(
@@ -49,7 +42,7 @@ async def test_login_invalidauth(
     ("method", "result"),
     [
         ("version", "0.5.0"),
-        ("get_status", StatusServerResponse.from_dict(TEST_STATUS_RESPONSE)),
+        ("get_status", TEST_STATUS_RESPONSE),
         ("pause", None),
         ("unpause", None),
         ("toggle_pause", None),
@@ -78,14 +71,6 @@ async def test_api_methods(
     mocked_aiohttp.get(re.compile(r".*"))
 
     assert await getattr(pyload, method)() == result
-
-
-def test_dataclass() -> None:
-    """Test methods of Response dataclass."""
-    result = LoginResponse.from_dict(TEST_LOGIN_RESPONSE)
-
-    assert result.to_dict() == TEST_LOGIN_RESPONSE
-    assert result["name"] == "test-username"
 
 
 @pytest.mark.parametrize(
