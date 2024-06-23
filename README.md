@@ -6,7 +6,7 @@
 
 [![build](https://github.com/tr4nt0r/pyloadapi/workflows/Build/badge.svg)](https://github.com/tr4nt0r/pyloadapi/actions)
 [![codecov](https://codecov.io/gh/tr4nt0r/pyloadapi/graph/badge.svg?token=SZDBSZGZE7)](https://codecov.io/gh/tr4nt0r/pyloadapi)
-[![PyPI version](https://badge.fury.io/py/pyloadapi.svg)](https://badge.fury.io/py/pyloadapi)
+[![PyPI version](https://badge.fury.io/py/PyLoadAPI.svg)](https://badge.fury.io/py/PyLoadAPI)
 [!["Buy Me A Coffee"](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/tr4nt0r)
 
 
