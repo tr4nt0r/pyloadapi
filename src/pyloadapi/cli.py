@@ -46,13 +46,6 @@ async def init_api(
     return api
 
 
-def abort_if_false(ctx: click.Context, param: Any, value: Any) -> None:
-    """Abort operation."""
-
-    if not value:
-        ctx.abort()
-
-
 @click.group()
 @click.option("--api-url", help="Base URL of pyLoad")
 @click.option("--username", help="Username for pyLoad")
@@ -111,21 +104,19 @@ def status(ctx: click.Context) -> None:
                 f"  - Active Downloads: {stat['active']}\n"
                 f"  - Items in Queue: {stat['queue']}\n"
                 f"  - Finished Downloads: {stat['total']}\n"
-                f"  - Download Speed: {(stat['speed'] * 8) / 1000000 } Mbit/s\n"
+                f"  - Download Speed: {round((stat['speed'] * 8) / 1000000, 2) } Mbit/s\n"
                 f"  - Free space: {round(free_space / (1024 ** 3), 2)} GiB\n"
                 f"  - Reconnect: {'Enabled' if stat['reconnect'] else 'Disabled'}\n"
                 f"  - Queue : {'Paused' if stat['pause'] else 'Running'}\n"
             )
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_status())
 
@@ -154,21 +145,18 @@ def queue(ctx: click.Context, pause: bool, resume: bool) -> None:
                     await api.toggle_pause()
 
                 s = await api.get_status()
-                if s.get("pause") is True:
-                    click.echo("Paused download queue.")
-                else:
-                    click.echo("Resumed download queue.")
+                click.echo(
+                    f"{"Paused" if s.get("pause") else "Resumed"} download queue."
+                )
 
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_queue(pause, resume))
 
@@ -191,15 +179,13 @@ def stop_all(ctx: click.Context) -> None:
                 await api.stop_all_downloads()
                 click.echo("Aborted all running downloads.")
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_stop_all())
 
@@ -222,15 +208,13 @@ def retry(ctx: click.Context) -> None:
                 await api.restart_failed()
                 click.echo("Retrying failed downloads.")
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_retry())
 
@@ -253,15 +237,13 @@ def delete_finished(ctx: click.Context) -> None:
                 await api.delete_finished()
                 click.echo("Deleted finished files and packages.")
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_delete_finished())
 
@@ -284,15 +266,13 @@ def restart(ctx: click.Context) -> None:
                 await api.restart()
                 click.echo("Restarting pyLoad...")
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_restart())
 
@@ -318,18 +298,12 @@ def toggle_reconnect(ctx: click.Context) -> None:
                     f"{"Enabled" if s.get("reconnect") else "Disabled"} auto-reconnect"
                 )
         except CannotConnect as e:
-            raise click.ClickException("Error: Unable to connect to pyLoad") from e
+            raise click.ClickException("Unable to connect to pyLoad") from e
         except InvalidAuth as e:
             raise click.ClickException(
-                "Error: Authentication failed, verify username and password"
+                "Authentication failed, verify username and password"
             ) from e
         except ParserError as e:
-            raise click.ClickException(
-                "Error: Unable to parse response from pyLoad"
-            ) from e
+            raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_toggle_reconnect())
-
-
-if __name__ == "__main__":
-    cli()
