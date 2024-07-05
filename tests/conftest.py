@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
+from unittest.mock import MagicMock, patch
 
 import aiohttp
 from aioresponses import aioresponses
@@ -41,14 +42,14 @@ TEST_STATUS_RESPONSE: StatusServerResponse = {
 
 @pytest.fixture(name="session")
 async def aiohttp_client_session() -> AsyncGenerator[aiohttp.ClientSession, Any]:
-    """Create  a client session."""
+    """Create a client session."""
     async with aiohttp.ClientSession() as session:
         yield session
 
 
 @pytest.fixture(name="pyload")
-async def mocked_pyloadapi_client(session: aiohttp.ClientSession) -> PyLoadAPI:
-    """Create Bring instance."""
+async def pyloadapi_client(session: aiohttp.ClientSession) -> PyLoadAPI:
+    """Create pyLoad instance."""
     pyload = PyLoadAPI(
         session,
         TEST_API_URL,
@@ -65,12 +66,12 @@ def aioclient_mock() -> Generator[aioresponses, Any, None]:
         yield m
 
 
-def parametrize_exception(
-    exception: Exception,
-    expected: Any,
-    mocked_aiohttp: aioresponses,
-) -> Any:
-    """Parametrize exceptions."""
-    mocked_aiohttp.post(r".*", exception=exception)
+@pytest.fixture
+def mock_pyloadapi() -> Generator[MagicMock, None, None]:
+    """Mock pyloadapi."""
 
-    return pytest.raises(expected)
+    with patch("pyloadapi.cli.PyLoadAPI", autospec=True) as mock_client:
+        client = mock_client.return_value
+        client.get_status.return_value = TEST_STATUS_RESPONSE
+        client.free_space.return_value = 107374182400
+        yield client
