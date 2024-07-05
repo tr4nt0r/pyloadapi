@@ -20,9 +20,17 @@ dependencies = [
     "aiohttp~=3.9"
 ]
 
+[project.optional-dependencies]
+cli = [
+  "click",
+]
+
 [project.urls]
 Documentation = "https://tr4nt0r.github.io/pyloadapi"
 Source = "https://github.com/tr4nt0r/pyloadapi"
+
+[project.scripts]
+pyloadapi = "pyloadapi.cli:cli"
 
 [tool.hatch.version]
 source = "regex_commit"
