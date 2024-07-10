@@ -101,10 +101,10 @@ def status(ctx: click.Context) -> None:
                 free_space = await api.free_space()
             click.echo(
                 f"Status:\n"
-                f"  - Active Downloads: {stat['active']}\n"
-                f"  - Items in Queue: {stat['queue']}\n"
-                f"  - Finished Downloads: {stat['total']}\n"
-                f"  - Download Speed: {round((stat['speed'] * 8) / 1000000, 2) } Mbit/s\n"
+                f"  - Active downloads: {stat['active']}\n"
+                f"  - Items in queue: {stat['queue']}\n"
+                f"  - Total downloads: {stat['total']}\n"
+                f"  - Download speed: {round((stat['speed'] * 8) / 1000000, 2) } Mbit/s\n"
                 f"  - Free space: {round(free_space / (1024 ** 3), 2)} GiB\n"
                 f"  - Reconnect: {'Enabled' if stat['reconnect'] else 'Disabled'}\n"
                 f"  - Queue : {'Paused' if stat['pause'] else 'Running'}\n"

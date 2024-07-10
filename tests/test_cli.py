@@ -24,10 +24,10 @@ def test_status() -> None:
         assert result.exit_code == 0
         assert result.output == (
             "Status:\n"
-            "  - Active Downloads: 10\n"
-            "  - Items in Queue: 5\n"
-            "  - Finished Downloads: 15\n"
-            "  - Download Speed: 80.0 Mbit/s\n"
+            "  - Active downloads: 10\n"
+            "  - Items in queue: 5\n"
+            "  - Total downloads: 15\n"
+            "  - Download speed: 80.0 Mbit/s\n"
             "  - Free space: 100.0 GiB\n"
             "  - Reconnect: Disabled\n"
             "  - Queue : Running\n\n"
