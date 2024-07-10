@@ -24,7 +24,7 @@ of the server responses and available commands.
 """
 
 from enum import StrEnum
-from typing import Any, TypedDict, TypeVar
+from typing import Any, NotRequired, TypedDict, TypeVar
 
 T = TypeVar("T")
 
@@ -61,7 +61,7 @@ class StatusServerResponse(TypedDict):
     speed: float
     download: bool
     reconnect: bool
-    captcha: bool
+    captcha: NotRequired[bool]
 
 
 class LoginResponse(TypedDict):
@@ -139,3 +139,11 @@ class PyLoadCommand(StrEnum):
     RESTART = "restart"
     VERSION = "getServerVersion"
     FREESPACE = "freeSpace"
+    ADDPACKAGE = "addPackage"
+
+
+class Destination(StrEnum):
+    """Destination for new Packages."""
+
+    QUEUE = "queue"
+    COLLECTOR = "collector"

@@ -13,7 +13,12 @@ import pytest
 
 from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
 
-from .conftest import TEST_API_URL, TEST_LOGIN_RESPONSE, TEST_STATUS_RESPONSE
+from .conftest import (
+    TEST_API_URL,
+    TEST_LOGIN_RESPONSE,
+    TEST_STATUS_RESPONSE,
+    TEST_STATUS_RESPONSE_NO_CAPTCHA,
+)
 
 load_dotenv()
 
@@ -57,7 +62,7 @@ async def test_login_invalidauth(
 async def test_api_methods(
     pyload: PyLoadAPI, mocked_aiohttp: aioresponses, method: str, result: Any
 ) -> None:
-    """Test login."""
+    """Test API methods."""
 
     mocked_aiohttp.get(
         f"{TEST_API_URL}api/getServerVersion",
@@ -71,6 +76,19 @@ async def test_api_methods(
     mocked_aiohttp.get(re.compile(r".*"))
 
     assert await getattr(pyload, method)() == result
+
+
+async def test_status_no_captcha(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test status for pre 0.5.0 pyLoad response."""
+
+    mocked_aiohttp.get(
+        f"{TEST_API_URL}api/statusServer",
+        payload=TEST_STATUS_RESPONSE_NO_CAPTCHA,
+    )
+
+    assert await pyload.get_status() == TEST_STATUS_RESPONSE_NO_CAPTCHA
 
 
 @pytest.mark.parametrize(

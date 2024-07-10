@@ -38,6 +38,15 @@ TEST_STATUS_RESPONSE: StatusServerResponse = {
     "reconnect": False,
     "captcha": False,
 }
+TEST_STATUS_RESPONSE_NO_CAPTCHA: StatusServerResponse = {
+    "pause": False,
+    "active": 10,
+    "queue": 5,
+    "total": 15,
+    "speed": 9999999.0,
+    "download": True,
+    "reconnect": False,
+}
 
 
 @pytest.fixture(name="session")
