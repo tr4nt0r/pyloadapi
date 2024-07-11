@@ -23,7 +23,7 @@ of the server responses and available commands.
 
 """
 
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 from typing import Any, NotRequired, TypedDict, TypeVar
 
 T = TypeVar("T")
@@ -139,11 +139,12 @@ class PyLoadCommand(StrEnum):
     RESTART = "restart"
     VERSION = "getServerVersion"
     FREESPACE = "freeSpace"
-    ADDPACKAGE = "addPackage"
+    ADD_PACKAGE = "addPackage"
+    UPLOAD_CONTAINER = "uploadContainer"
 
 
-class Destination(StrEnum):
+class Destination(IntEnum):
     """Destination for new Packages."""
 
-    QUEUE = "queue"
-    COLLECTOR = "collector"
+    COLLECTOR = 0
+    QUEUE = 1
