@@ -12,8 +12,10 @@ from dotenv import load_dotenv
 import pytest
 
 from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
+from pyloadapi.types import Destination
 
 from .conftest import (
+    BYTE_DATA,
     TEST_API_URL,
     TEST_LOGIN_RESPONSE,
     TEST_STATUS_RESPONSE,
@@ -175,3 +177,154 @@ async def test_parse_exceptions(
 
     with pytest.raises(expected_exception=ParserError):
         await getattr(pyload, method)()
+
+
+async def test_upload_container(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test upload_container method."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/uploadContainer",
+    )
+
+    await pyload.upload_container("filename.dlc", BYTE_DATA)
+    mocked_aiohttp.assert_called_once_with(
+        f"{TEST_API_URL}api/uploadContainer",
+        method="POST",
+        data={"filename": '"filename.dlc"', "data": "b'BYTE_DATA'"},
+    )
+
+
+async def test_upload_container_exception(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test upload_container exception."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/uploadContainer", exception=aiohttp.ClientError
+    )
+
+    with pytest.raises(expected_exception=CannotConnect):
+        await pyload.upload_container("filename.dlc", BYTE_DATA)
+
+
+async def test_upload_container_unauthorized(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test upload_container authentication error."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/uploadContainer", status=HTTPStatus.UNAUTHORIZED
+    )
+
+    with pytest.raises(expected_exception=InvalidAuth):
+        await pyload.upload_container("filename.dlc", BYTE_DATA)
+
+
+async def test_upload_container_parse_exception(
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test upload_container parser error."""
+
+    mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
+
+    async def json(*args: Any) -> None:
+        raise JSONDecodeError("", "", 0)
+
+    monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
+
+    with pytest.raises(expected_exception=ParserError):
+        await pyload.upload_container("filename.dlc", BYTE_DATA)
+
+
+async def test_add_package(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
+    """Test add_package method."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/addPackage",
+        payload=1,
+    )
+
+    await pyload.add_package(
+        name="Package Name",
+        links=[
+            "https://example.com/file1.zip",
+            "https://example.com/file2.iso",
+        ],
+        destination=Destination.COLLECTOR,
+    )
+    mocked_aiohttp.assert_called_once_with(
+        f"{TEST_API_URL}api/addPackage",
+        method="POST",
+        data={
+            "name": '"Package Name"',
+            "links": '["https://example.com/file1.zip", "https://example.com/file2.iso"]',
+            "dest": "0",
+        },
+    )
+
+
+async def test_add_package_exception(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test add_package with exception."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/addPackage", payload=1, exception=aiohttp.ClientError
+    )
+    with pytest.raises(expected_exception=CannotConnect):
+        await pyload.add_package(
+            name="Package Name",
+            links=[
+                "https://example.com/file1.zip",
+                "https://example.com/file2.iso",
+            ],
+            destination=Destination.COLLECTOR,
+        )
+
+
+async def test_add_package_unauthorized(
+    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+) -> None:
+    """Test add_package authentication error."""
+
+    mocked_aiohttp.post(
+        f"{TEST_API_URL}api/addPackage", payload=1, status=HTTPStatus.UNAUTHORIZED
+    )
+    with pytest.raises(expected_exception=InvalidAuth):
+        await pyload.add_package(
+            name="Package Name",
+            links=[
+                "https://example.com/file1.zip",
+                "https://example.com/file2.iso",
+            ],
+            destination=Destination.COLLECTOR,
+        )
+
+
+async def test_add_package_parse_exception(
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test add_package parser error."""
+
+    mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
+
+    async def json(*args: Any) -> None:
+        raise JSONDecodeError("", "", 0)
+
+    monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
+
+    with pytest.raises(expected_exception=ParserError):
+        await pyload.add_package(
+            name="Package Name",
+            links=[
+                "https://example.com/file1.zip",
+                "https://example.com/file2.iso",
+            ],
+            destination=Destination.COLLECTOR,
+        )

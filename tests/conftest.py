@@ -48,6 +48,8 @@ TEST_STATUS_RESPONSE_NO_CAPTCHA: StatusServerResponse = {
     "reconnect": False,
 }
 
+BYTE_DATA = b"BYTE_DATA"
+
 
 @pytest.fixture(name="session")
 async def aiohttp_client_session() -> AsyncGenerator[aiohttp.ClientSession, Any]:

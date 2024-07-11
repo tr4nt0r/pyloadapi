@@ -10,8 +10,8 @@ import aiohttp
 import click
 
 from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
+from pyloadapi.types import Destination
 
-logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_FILE_PATH = Path("~/.config/pyloadapi/.pyload_config.json").expanduser()
@@ -46,7 +46,7 @@ async def init_api(
     return api
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.option("--api-url", help="Base URL of pyLoad")
 @click.option("--username", help="Username for pyLoad")
 @click.option("--password", help="Password for pyLoad")
@@ -58,6 +58,9 @@ def cli(
     password: str | None = None,
 ) -> None:
     """CLI for interacting with pyLoad."""
+
+    if not any([api_url, username, password, ctx.invoked_subcommand]):
+        click.echo(ctx.get_help())
 
     config = load_config()
 
@@ -307,3 +310,95 @@ def toggle_reconnect(ctx: click.Context) -> None:
             raise click.ClickException("Unable to parse response from pyLoad") from e
 
     asyncio.run(_toggle_reconnect())
+
+
+@cli.command()
+@click.pass_context
+@click.argument(
+    "container",
+    type=click.Path(
+        exists=True,
+        readable=True,
+        path_type=Path,
+    ),
+)
+def upload_container(ctx: click.Context, container: Path) -> None:
+    """Upload a container file to pyLoad."""
+
+    with open(container, "rb") as f:
+        binary_data = f.read()
+
+    async def _upload_container() -> None:
+        try:
+            async with aiohttp.ClientSession() as session:
+                api = await init_api(
+                    session,
+                    ctx.obj["api_url"],
+                    ctx.obj["username"],
+                    ctx.obj["password"],
+                )
+
+                await api.upload_container(
+                    filename=click.format_filename(container, shorten=True),
+                    binary_data=binary_data,
+                )
+
+        except CannotConnect as e:
+            raise click.ClickException("Unable to connect to pyLoad") from e
+        except InvalidAuth as e:
+            raise click.ClickException(
+                "Authentication failed, verify username and password"
+            ) from e
+        except ParserError as e:
+            raise click.ClickException("Unable to parse response from pyLoad") from e
+
+    asyncio.run(_upload_container())
+
+
+@cli.command()
+@click.pass_context
+@click.argument("package_name")
+@click.option(
+    "--queue/--collector",
+    default=True,
+    help="Add package to queue or collector. Defaults to queue",
+)
+def add_package(ctx: click.Context, package_name: str, queue: bool) -> None:
+    """Add a package to pyLoad."""
+
+    links = []
+
+    while value := click.prompt(
+        "Please enter a link", type=str, default="", show_default=False
+    ):
+        links.append(value)
+
+    if not links:
+        raise click.ClickException("No links entered")
+
+    async def _add_package() -> None:
+        try:
+            async with aiohttp.ClientSession() as session:
+                api = await init_api(
+                    session,
+                    ctx.obj["api_url"],
+                    ctx.obj["username"],
+                    ctx.obj["password"],
+                )
+
+                await api.add_package(
+                    name=package_name,
+                    links=links,
+                    destination=Destination.QUEUE if queue else Destination.COLLECTOR,
+                )
+
+        except CannotConnect as e:
+            raise click.ClickException("Unable to connect to pyLoad") from e
+        except InvalidAuth as e:
+            raise click.ClickException(
+                "Authentication failed, verify username and password"
+            ) from e
+        except ParserError as e:
+            raise click.ClickException("Unable to parse response from pyLoad") from e
+
+    asyncio.run(_add_package())

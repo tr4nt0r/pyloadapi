@@ -7,6 +7,7 @@ pausing downloads, restarting pyLoad, retrieving status information, and more.
 """
 
 from http import HTTPStatus
+import json
 from json import JSONDecodeError
 import logging
 import traceback
@@ -15,7 +16,7 @@ from typing import Any
 import aiohttp
 
 from .exceptions import CannotConnect, InvalidAuth, ParserError
-from .types import LoginResponse, PyLoadCommand, StatusServerResponse
+from .types import Destination, LoginResponse, PyLoadCommand, StatusServerResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -165,6 +166,91 @@ class PyLoadAPI:
             )
             raise CannotConnect(
                 "Executing command {command} failed due to request exception"
+            ) from e
+
+    async def post(
+        self,
+        command: PyLoadCommand,
+        data: dict[str, Any],
+    ) -> Any:
+        """Execute a pyLoad API command using a POST request.
+
+        Parameters
+        ----------
+        command : PyLoadCommand
+            The pyLoad command to execute.
+        data : dict[str, Any]
+            Data to include in the request body. The values in the dictionary
+            will be JSON encoded.
+
+        Returns
+        -------
+        Any
+            The response data from the API.
+
+        Raises
+        ------
+        CannotConnect
+            If the request to the API fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an error parsing the API response.
+
+        Notes
+        -----
+        This method sends an asynchronous POST request to the pyLoad API endpoint
+        specified by `command`, with the provided `data` dictionary. It handles
+        authentication errors, HTTP status checks, and parses the JSON response.
+
+
+        Example
+        -------
+        To add a new package to pyLoad, use:
+        ```python
+        status = await pyload_api.post(PyLoadCommand.ADD_PACKAGE, data={...}
+        ```
+
+        """
+        url = f"{self.api_url}api/{command}"
+        data = {
+            k: str(v) if isinstance(v, bytes) else json.dumps(v)
+            for k, v in data.items()
+        }
+
+        try:
+            async with self._session.post(url, data=data) as r:
+                _LOGGER.debug(
+                    "Response from %s [%s]: %s", r.url, r.status, await r.text()
+                )
+
+                if r.status == HTTPStatus.UNAUTHORIZED:
+                    raise InvalidAuth(
+                        "Request failed due invalid or expired authentication cookie."
+                    )
+                r.raise_for_status()
+                try:
+                    data = await r.json()
+                except JSONDecodeError as e:
+                    _LOGGER.debug(
+                        "Exception: Cannot parse response for %s:\n %s",
+                        command,
+                        traceback.format_exc(),
+                    )
+                    raise ParserError(
+                        f"Get {command} failed during parsing of request response."
+                    ) from e
+
+                return data
+
+        except (TimeoutError, aiohttp.ClientError) as e:
+            _LOGGER.debug(
+                "Exception: Cannot execute command %s:\n %s",
+                command,
+                traceback.format_exc(),
+            )
+            raise CannotConnect(
+                f"Executing command {command} failed due to request exception"
             ) from e
 
     async def get_status(self) -> StatusServerResponse:
@@ -529,3 +615,107 @@ class PyLoadAPI:
             return int(r)
         except CannotConnect as e:
             raise CannotConnect("Get free space failed due to request exception") from e
+
+    async def add_package(
+        self,
+        name: str,
+        links: list[str],
+        destination: Destination = Destination.COLLECTOR,
+    ) -> int:
+        """Add a new package to pyLoad from a list of links.
+
+        Parameters
+        ----------
+        name : str
+            The name of the package to be added.
+        links : list[str]
+            A list of download links to be included in the package.
+        destination : Destination, optional
+            The destination where the package should be stored, by default Destination.COLLECTOR.
+
+        Returns
+        -------
+        int
+            The ID of the newly created package.
+
+        Raises
+        ------
+        CannotConnect
+            If the request to add the package fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+        ParserError
+            If there's an issue parsing the response from the server.
+
+        Example
+        -------
+        To add a new package with a couple of links to the pyLoad collector:
+        ```python
+        package_id = await pyload_api.add_package(
+            "test_package",
+            [
+                "https://example.com/file1.zip",
+                "https://example.com/file2.iso",
+            ]
+        )
+        ```
+        """
+
+        try:
+            r = await self.post(
+                PyLoadCommand.ADD_PACKAGE,
+                data={
+                    "name": name,
+                    "links": links,
+                    "dest": destination,
+                },
+            )
+            return int(r)
+        except CannotConnect as e:
+            raise CannotConnect("Adding package failed due to request exception") from e
+
+    async def upload_container(
+        self,
+        filename: str,
+        binary_data: bytes,
+    ) -> None:
+        """Upload a container file to pyLoad.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to be uploaded.
+        binary_data : bytes
+            The binary content of the file.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        CannotConnect
+            If the request to upload the container fails due to a connection issue.
+        InvalidAuth
+            If the request fails due to invalid or expired authentication.
+
+        Example
+        -------
+        To upload a container file to pyLoad:
+        ```python
+        await pyload_api.upload_container(
+            "example_container.dlc",
+            b"binary data of the file"
+        )
+        ```
+        """
+        try:
+            await self.post(
+                PyLoadCommand.UPLOAD_CONTAINER,
+                data={"filename": filename, "data": binary_data},
+            )
+
+        except CannotConnect as e:
+            raise CannotConnect(
+                "Uploading container to pyLoad failed due to request exception"
+            ) from e
