@@ -5,7 +5,13 @@
 To install PyLoadAPI, run this command in your terminal:
 
 ``` console
-$ pip install PyLoadAPI
+$ pip install pyloadapi
+```
+
+To install PyLoadAPI along with the depencies for the commandline interface run this command:
+
+``` console
+$ pip install pyloadapi[cli]
 ```
 
 This is the preferred method to install PyLoadAPI, as it will always
@@ -37,5 +43,6 @@ $ curl -OJL https://github.com/tr4nt0r/pyloadapi/tarball/master
 Once you have a copy of the source, you can install it with:
 
 ``` console
-$ python setup.py install
+$ cd src/pyloadapi
+$ pip install .
 ```
