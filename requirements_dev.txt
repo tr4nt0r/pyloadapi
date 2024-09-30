@@ -1,4 +1,4 @@
-aiohttp==3.10.5
+aiohttp==3.10.8
 click==8.1.7
 mypy==1.11.2
 pre-commit==3.8.0
