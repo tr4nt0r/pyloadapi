@@ -4,6 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "PyLoadAPI"
+license = "MIT"
 dynamic = ["version"]
 description = "Simple wrapper for pyLoad's API."
 readme = "README.md"
@@ -12,7 +13,6 @@ authors = [
     { name = "Manfred Dennerlein Rodelo", email = "manfred@dennerlein.name" }
 ]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3"
 ]
