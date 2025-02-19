@@ -107,8 +107,8 @@ def status(ctx: click.Context) -> None:
                 f"  - Active downloads: {stat['active']}\n"
                 f"  - Items in queue: {stat['queue']}\n"
                 f"  - Total downloads: {stat['total']}\n"
-                f"  - Download speed: {round((stat['speed'] * 8) / 1000000, 2) } Mbit/s\n"
-                f"  - Free space: {round(free_space / (1024 ** 3), 2)} GiB\n"
+                f"  - Download speed: {round((stat['speed'] * 8) / 1000000, 2)} Mbit/s\n"
+                f"  - Free space: {round(free_space / (1024**3), 2)} GiB\n"
                 f"  - Reconnect: {'Enabled' if stat['reconnect'] else 'Disabled'}\n"
                 f"  - Queue : {'Paused' if stat['pause'] else 'Running'}\n"
             )
@@ -149,7 +149,7 @@ def queue(ctx: click.Context, pause: bool, resume: bool) -> None:
 
                 s = await api.get_status()
                 click.echo(
-                    f"{"Paused" if s.get("pause") else "Resumed"} download queue."
+                    f"{'Paused' if s.get('pause') else 'Resumed'} download queue."
                 )
 
         except CannotConnect as e:
@@ -298,7 +298,7 @@ def toggle_reconnect(ctx: click.Context) -> None:
                 await api.toggle_reconnect()
                 s = await api.get_status()
                 click.echo(
-                    f"{"Enabled" if s.get("reconnect") else "Disabled"} auto-reconnect"
+                    f"{'Enabled' if s.get('reconnect') else 'Disabled'} auto-reconnect"
                 )
         except CannotConnect as e:
             raise click.ClickException("Unable to connect to pyLoad") from e
