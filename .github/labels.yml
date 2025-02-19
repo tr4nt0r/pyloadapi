@@ -33,11 +33,9 @@
   description: This issue or pull request already exists
   color: cfd3d7
 - name: ':rocket: feature'
+  from_name: enhancement
   description: New feature or request
   color: a2eeef
-- name: ':sparkles: enhancement'
-  description: Minor enhancement
-  from_name: enhancement
 - name: ':clapper: github_actions'
   from_name: github_actions
   description: Pull requests that update Github_actions code

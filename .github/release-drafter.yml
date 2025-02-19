@@ -23,6 +23,7 @@ categories:
       - ':building_construction: build'
       - ':construction_worker_woman: ci'
       - ':clapper: github_actions'
+    collapse-after: 5
   - title: '🔬 Other updates'
     labels:
       - ':nail_care: style'
@@ -33,6 +34,7 @@ categories:
   - title: '🧩 Dependency Updates'
     labels:
       - ':recycle: dependencies'
+    collapse-after: 5
 exclude-labels:
   - ':arrow_up: bump'
 
