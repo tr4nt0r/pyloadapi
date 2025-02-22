@@ -17,10 +17,7 @@ jobs:
       with:
         python-version: ${{ matrix.python_version }}
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install hatch
-        hatch env create
+      run: pipx install hatch
     - name: Lint and typecheck
       run: |
         hatch run lint-check
@@ -50,9 +47,7 @@ jobs:
         python-version: '3.11'
     - name: Install dependencies
       shell: bash
-      run: |
-        python -m pip install --upgrade pip
-        pip install hatch
+      run: pipx install hatch
     - name: mint API token
       id: mint-token
       run: |
