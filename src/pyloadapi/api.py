@@ -10,7 +10,6 @@ from http import HTTPStatus
 import json
 from json import JSONDecodeError
 import logging
-import traceback
 from typing import Any
 
 import aiohttp
@@ -83,8 +82,7 @@ class PyLoadAPI:
                     data: LoginResponse = await r.json()
                 except (JSONDecodeError, TypeError, aiohttp.ContentTypeError) as e:
                     _LOGGER.debug(
-                        "Exception: Cannot parse login response:\n %s",
-                        traceback.format_exc(),
+                        "Exception: Cannot parse login response:\n %s", exc_info=True
                     )
                     raise ParserError(
                         "Login failed during parsing of request response."
@@ -94,7 +92,7 @@ class PyLoadAPI:
                         raise InvalidAuth
                     return data
         except (TimeoutError, aiohttp.ClientError) as e:
-            _LOGGER.debug("Exception: Cannot login:\n %s", traceback.format_exc())
+            _LOGGER.debug("Exception: Cannot login:\n %s", exc_info=True)
             raise CannotConnect from e
 
     async def get(
@@ -155,7 +153,7 @@ class PyLoadAPI:
                     _LOGGER.debug(
                         "Exception: Cannot parse response for %s:\n %s",
                         command,
-                        traceback.format_exc(),
+                        exc_info=True,
                     )
                     raise ParserError(
                         "Get {command} failed during parsing of request response."
@@ -167,7 +165,7 @@ class PyLoadAPI:
             _LOGGER.debug(
                 "Exception: Cannot execute command %s:\n %s",
                 command,
-                traceback.format_exc(),
+                exc_info=True,
             )
             raise CannotConnect(
                 "Executing command {command} failed due to request exception"
@@ -240,7 +238,7 @@ class PyLoadAPI:
                     _LOGGER.debug(
                         "Exception: Cannot parse response for %s:\n %s",
                         command,
-                        traceback.format_exc(),
+                        exc_info=True,
                     )
                     raise ParserError(
                         f"Get {command} failed during parsing of request response."
@@ -252,7 +250,7 @@ class PyLoadAPI:
             _LOGGER.debug(
                 "Exception: Cannot execute command %s:\n %s",
                 command,
-                traceback.format_exc(),
+                exc_info=True,
             )
             raise CannotConnect(
                 f"Executing command {command} failed due to request exception"
