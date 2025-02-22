@@ -30,5 +30,5 @@ repos:
   rev: 'v1.15.0'  # make sure this is always consistent with hatch configs
   hooks:
     - id: mypy
-      args: ["--install-types", "--non-interactive", "--ignore-missing-imports"]
+      args: ["--config-file=./pyproject.toml", "--install-types", "--non-interactive", "--ignore-missing-imports"]
       additional_dependencies: [types-tabulate, types-cachetools]
