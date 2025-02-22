@@ -6,13 +6,9 @@ from unittest.mock import MagicMock, patch
 
 import aiohttp
 from aioresponses import aioresponses
-from dotenv import load_dotenv
 import pytest
 
 from pyloadapi import PyLoadAPI, StatusServerResponse
-
-load_dotenv()
-
 
 TEST_API_URL = "https://example.com:8000/"
 TEST_USERNAME = "test-username"

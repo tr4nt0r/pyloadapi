@@ -8,7 +8,6 @@ from typing import Any
 
 import aiohttp
 from aioresponses import aioresponses
-from dotenv import load_dotenv
 import pytest
 
 from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
@@ -21,8 +20,6 @@ from .conftest import (
     TEST_STATUS_RESPONSE,
     TEST_STATUS_RESPONSE_NO_CAPTCHA,
 )
-
-load_dotenv()
 
 
 async def test_login(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
