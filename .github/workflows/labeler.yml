@@ -1,9 +1,6 @@
 name: Labeler
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 permissions:
   actions: read
