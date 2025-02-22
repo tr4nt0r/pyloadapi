@@ -19,7 +19,7 @@ from yarl import URL
 from .exceptions import CannotConnect, InvalidAuth, ParserError
 from .types import Destination, LoginResponse, PyLoadCommand, StatusServerResponse
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__package__)
 
 
 class PyLoadAPI:
