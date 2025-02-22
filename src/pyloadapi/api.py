@@ -14,6 +14,7 @@ import traceback
 from typing import Any
 
 import aiohttp
+from yarl import URL
 
 from .exceptions import CannotConnect, InvalidAuth, ParserError
 from .types import Destination, LoginResponse, PyLoadCommand, StatusServerResponse
@@ -27,7 +28,7 @@ class PyLoadAPI:
     def __init__(
         self,
         session: aiohttp.ClientSession,
-        api_url: str,
+        api_url: str | URL,
         username: str,
         password: str,
     ) -> None:
@@ -46,7 +47,7 @@ class PyLoadAPI:
 
         """
         self._session = session
-        self.api_url = api_url
+        self.api_url = api_url if isinstance(api_url, URL) else URL(api_url)
         self.username = username
         self.password = password
 
@@ -70,7 +71,7 @@ class PyLoadAPI:
         """
 
         user_data = {"username": self.username, "password": self.password}
-        url = f"{self.api_url}api/login"
+        url = self.api_url / "api/login"
         try:
             async with self._session.post(url, data=user_data) as r:
                 _LOGGER.debug(
@@ -136,7 +137,7 @@ class PyLoadAPI:
         ```
 
         """
-        url = f"{self.api_url}api/{command}"
+        url = self.api_url / "api" / command.value
         try:
             async with self._session.get(url, params=params) as r:
                 _LOGGER.debug(
@@ -216,7 +217,7 @@ class PyLoadAPI:
         ```
 
         """
-        url = f"{self.api_url}api/{command}"
+        url = self.api_url / "api" / command
         data = {
             k: str(v) if isinstance(v, bytes) else json.dumps(v)
             for k, v in data.items()
