@@ -46,7 +46,7 @@ include = [
 python = "3.12"
 dependencies = [
     "aioresponses==0.7.8",
-    "mkdocs-material==9.6.4",
+    "mkdocs-material==9.6.5",
     "mkdocstrings[python]==0.28.1",
     "mypy==1.15.0",
     "pre-commit==4.1.0",
@@ -54,7 +54,7 @@ dependencies = [
     "pytest-cov==6.0.0",
     "pytest==8.3.4",
     "python-dotenv==1.0.1",
-    "ruff==0.9.6"
+    "ruff==0.9.7"
 ]
 
 [tool.hatch.envs.default.scripts]
