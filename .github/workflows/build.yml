@@ -4,18 +4,12 @@ on: [push, pull_request]
 
 jobs:
   test:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python_version: ['3.11','3.12']
-
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python_version }}
     - name: Install dependencies
       run: pipx install hatch
     - name: Lint and typecheck
@@ -23,7 +17,7 @@ jobs:
         hatch run lint-check
     - name: Test
       run: |
-        hatch run test-cov-xml
+        hatch test --all
     - uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -41,10 +35,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
     - name: Install dependencies
       shell: bash
       run: pipx install hatch

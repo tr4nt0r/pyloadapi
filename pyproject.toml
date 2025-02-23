@@ -56,6 +56,21 @@ dependencies = [
     "ruff==0.9.7"
 ]
 
+[tool.hatch.envs.hatch-test]
+parallel = false
+extra-dependencies = [
+  "aioresponses==0.7.8",
+  "pytest-asyncio==0.25.3",
+  "syrupy==4.8.1",
+  "pytest-cov==6.0.0",
+  "click==8.1.8",
+]
+extra-args = ["--cov-report=xml", "-vv"]
+type = "virtual"
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.13", "3.12", "3.11", "3.10"]
+
 [tool.hatch.envs.default.scripts]
 test = "pytest"
 test-cov-xml = "pytest --cov-report=xml"
@@ -82,6 +97,7 @@ testpaths = [
 pythonpath = [
   "src"
 ]
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff.lint]
 extend-select = ["I", "TRY", "UP", "D", "W"]
