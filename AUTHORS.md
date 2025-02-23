@@ -1,10 +1,9 @@
 # Credits
 
-
 ## Development Lead
 
 * Manfred Dennerlein Rodelo <manfred@dennerlein.name>
 
 ## Contributors
 
-None yet. Why not be the first?
+* [cdce8p](https://github.com/cdce8p)
