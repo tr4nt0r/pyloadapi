@@ -1,6 +1,6 @@
 """PyLoadAPI package."""
 
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 
 from .api import PyLoadAPI
 from .exceptions import CannotConnect, InvalidAuth, ParserError
