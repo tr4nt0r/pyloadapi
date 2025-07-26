@@ -46,7 +46,7 @@ include = [
 python = "3.12"
 dependencies = [
     "aioresponses==0.7.8",
-    "mkdocs-material==9.6.15",
+    "mkdocs-material==9.6.16",
     "mkdocstrings[python]==0.30.0",
     "mypy==1.17.0",
     "pre-commit==4.2.0",
