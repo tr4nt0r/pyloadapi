@@ -48,7 +48,7 @@ dependencies = [
     "aioresponses==0.7.8",
     "mkdocs-material==9.6.16",
     "mkdocstrings[python]==0.30.0",
-    "mypy==1.17.0",
+    "mypy==1.17.1",
     "pre-commit==4.2.0",
     "pytest-asyncio==1.1.0",
     "pytest-cov==6.2.1",
