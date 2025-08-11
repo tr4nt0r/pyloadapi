@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install dependencies
       run: pipx install hatch
     - name: Lint and typecheck
@@ -34,7 +34,7 @@ jobs:
         id-token: write
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install dependencies
       shell: bash
       run: pipx install hatch
