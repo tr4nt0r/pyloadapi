@@ -14,7 +14,7 @@ jobs:
       uses: pypa/hatch@install
     - name: Lint and typecheck
       run: |
-        hatch run lint-check
+          hatch fmt --linter
     - name: Test
       run: |
         hatch test --all

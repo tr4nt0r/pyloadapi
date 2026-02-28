@@ -68,6 +68,12 @@ extra-dependencies = [
 extra-args = ["--cov-report=xml", "-vv"]
 type = "virtual"
 
+[tool.hatch.envs.hatch-static-analysis]
+dependencies = [
+    "ruff==0.15.4",
+]
+config-path = "none"
+
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.13", "3.12", "3.11", "3.10"]
 
