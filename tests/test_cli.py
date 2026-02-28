@@ -55,14 +55,14 @@ def test_missing_credentials(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize(
     ("command", "msg"),
-    (
+    [
         ("queue", "Resumed download queue.\n"),
         ("stop-all", "Aborted all running downloads.\n"),
         ("retry", "Retrying failed downloads.\n"),
         ("delete-finished", "Deleted finished files and packages.\n"),
         ("restart", "Restarting pyLoad...\n"),
         ("toggle-reconnect", "Disabled auto-reconnect\n"),
-    ),
+    ],
 )
 @pytest.mark.usefixtures("mock_pyloadapi")
 def test_all_commands(
@@ -90,7 +90,10 @@ def test_all_commands(
     ],
 )
 def test_queue_with_options(
-    mock_pyloadapi: MagicMock, msg: str, command: str, pause: bool
+    mock_pyloadapi: MagicMock,
+    msg: str,
+    command: str,
+    pause: bool,
 ) -> None:
     """Test status."""
     runner = CliRunner()
@@ -114,7 +117,7 @@ def test_queue_with_options(
 )
 @pytest.mark.parametrize(
     ("command"),
-    (
+    [
         "status",
         "queue",
         "queue -p",
@@ -124,7 +127,7 @@ def test_queue_with_options(
         "delete-finished",
         "restart",
         "toggle-reconnect",
-    ),
+    ],
 )
 def test_exceptions(
     mock_pyloadapi: MagicMock,
@@ -165,7 +168,7 @@ def test_upload_container(
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path) as tmp:
         dlc = Path(tmp, "container.dlc")
-        with open(dlc, "wb") as f:
+        with Path(dlc).open("wb") as f:
             f.write(BYTE_DATA)
 
         result = runner.invoke(
@@ -194,7 +197,7 @@ def test_upload_container_exceptions(
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path) as tmp:
         dlc = Path(tmp, "container.dlc")
-        with open(dlc, "wb") as f:
+        with Path(dlc).open("wb") as f:
             f.write(BYTE_DATA)
 
         mock_pyloadapi.upload_container.side_effect = exception
@@ -215,7 +218,7 @@ def test_add_package(tmp_path: Path) -> None:
         result = runner.invoke(
             cli,
             args=f"--username {TEST_USERNAME} --password {TEST_PASSWORD} --api-url {TEST_API_URL} add-package Test-Package",
-            input=("http://example.com/file1.zip\n" "http://example.com/file2.iso\n\n"),
+            input=("http://example.com/file1.zip\nhttp://example.com/file2.iso\n\n"),
         )
         assert result.exit_code == 0
         assert result.output == (
@@ -260,7 +263,7 @@ def test_add_package_exceptions(
         result = runner.invoke(
             cli,
             args=f"--username {TEST_USERNAME} --password {TEST_PASSWORD} --api-url {TEST_API_URL} add-package Test-Package",
-            input=("http://example.com/file1.zip\n" "http://example.com/file2.iso\n\n"),
+            input=("http://example.com/file1.zip\nhttp://example.com/file2.iso\n\n"),
         )
         assert result.exit_code == 1
         assert msg in result.output

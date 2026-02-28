@@ -25,7 +25,9 @@ from .conftest import (
 async def test_login(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
     """Test login."""
     mocked_aiohttp.post(
-        f"{TEST_API_URL}api/login", status=HTTPStatus.OK, payload=TEST_LOGIN_RESPONSE
+        f"{TEST_API_URL}api/login",
+        status=HTTPStatus.OK,
+        payload=TEST_LOGIN_RESPONSE,
     )
 
     result = await pyload.login()
@@ -33,7 +35,8 @@ async def test_login(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
 
 
 async def test_login_invalidauth(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test login."""
     mocked_aiohttp.post(f"{TEST_API_URL}api/login", status=HTTPStatus.OK)
@@ -59,7 +62,10 @@ async def test_login_invalidauth(
     ],
 )
 async def test_api_methods(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses, method: str, result: Any
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
+    method: str,
+    result: Any,
 ) -> None:
     """Test API methods."""
 
@@ -78,7 +84,8 @@ async def test_api_methods(
 
 
 async def test_status_no_captcha(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test status for pre 0.5.0 pyLoad response."""
 
@@ -107,7 +114,9 @@ async def test_status_no_captcha(
     ],
 )
 async def test_invalidauth(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses, method: str
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
+    method: str,
 ) -> None:
     """Test login."""
 
@@ -168,7 +177,8 @@ async def test_parse_exceptions(
     mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
 
     async def json(*args: Any) -> None:
-        raise JSONDecodeError("", "", 0)
+        msg = ""
+        raise JSONDecodeError(msg, "", 0)
 
     monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
 
@@ -177,7 +187,8 @@ async def test_parse_exceptions(
 
 
 async def test_upload_container(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test upload_container method."""
 
@@ -194,12 +205,14 @@ async def test_upload_container(
 
 
 async def test_upload_container_exception(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test upload_container exception."""
 
     mocked_aiohttp.post(
-        f"{TEST_API_URL}api/uploadContainer", exception=aiohttp.ClientError
+        f"{TEST_API_URL}api/uploadContainer",
+        exception=aiohttp.ClientError,
     )
 
     with pytest.raises(expected_exception=CannotConnect):
@@ -207,12 +220,14 @@ async def test_upload_container_exception(
 
 
 async def test_upload_container_unauthorized(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test upload_container authentication error."""
 
     mocked_aiohttp.post(
-        f"{TEST_API_URL}api/uploadContainer", status=HTTPStatus.UNAUTHORIZED
+        f"{TEST_API_URL}api/uploadContainer",
+        status=HTTPStatus.UNAUTHORIZED,
     )
 
     with pytest.raises(expected_exception=InvalidAuth):
@@ -229,7 +244,8 @@ async def test_upload_container_parse_exception(
     mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
 
     async def json(*args: Any) -> None:
-        raise JSONDecodeError("", "", 0)
+        msg = ""
+        raise JSONDecodeError(msg, "", 0)
 
     monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
 
@@ -265,12 +281,15 @@ async def test_add_package(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> N
 
 
 async def test_add_package_exception(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test add_package with exception."""
 
     mocked_aiohttp.post(
-        f"{TEST_API_URL}api/addPackage", payload=1, exception=aiohttp.ClientError
+        f"{TEST_API_URL}api/addPackage",
+        payload=1,
+        exception=aiohttp.ClientError,
     )
     with pytest.raises(expected_exception=CannotConnect):
         await pyload.add_package(
@@ -284,12 +303,15 @@ async def test_add_package_exception(
 
 
 async def test_add_package_unauthorized(
-    pyload: PyLoadAPI, mocked_aiohttp: aioresponses
+    pyload: PyLoadAPI,
+    mocked_aiohttp: aioresponses,
 ) -> None:
     """Test add_package authentication error."""
 
     mocked_aiohttp.post(
-        f"{TEST_API_URL}api/addPackage", payload=1, status=HTTPStatus.UNAUTHORIZED
+        f"{TEST_API_URL}api/addPackage",
+        payload=1,
+        status=HTTPStatus.UNAUTHORIZED,
     )
     with pytest.raises(expected_exception=InvalidAuth):
         await pyload.add_package(
@@ -312,7 +334,8 @@ async def test_add_package_parse_exception(
     mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
 
     async def json(*args: Any) -> None:
-        raise JSONDecodeError("", "", 0)
+        msg = ""
+        raise JSONDecodeError(msg, "", 0)
 
     monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
 
