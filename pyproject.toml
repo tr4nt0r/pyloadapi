@@ -45,7 +45,6 @@ include = [
 [tool.hatch.envs.default]
 python = "3.12"
 dependencies = [
-    "aioresponses==0.7.8",
     "mkdocs-material==9.7.3",
     "mkdocstrings[python]==1.0.3",
     "mypy==1.19.1",
@@ -59,7 +58,6 @@ dependencies = [
 [tool.hatch.envs.hatch-test]
 parallel = false
 extra-dependencies = [
-  "aioresponses==0.7.8",
   "pytest-asyncio==1.3.0",
   "syrupy==5.1.0",
   "pytest-cov==7.0.0",

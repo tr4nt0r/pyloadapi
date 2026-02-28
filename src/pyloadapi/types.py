@@ -24,7 +24,7 @@ of the server responses and available commands.
 """
 
 from enum import IntEnum, StrEnum
-from typing import Any, NotRequired, TypedDict, TypeVar
+from typing import NotRequired, TypedDict, TypeVar
 
 T = TypeVar("T")
 
@@ -64,40 +64,6 @@ class StatusServerResponse(TypedDict):
     captcha: NotRequired[bool]
 
 
-class LoginResponse(TypedDict):
-    """Dataclass for login response.
-
-    Attributes
-    ----------
-    _permanent : bool
-        Indicates if the session is permanent.
-    authenticated : bool
-        Indicates if the user is authenticated.
-    id : int
-        The ID of the user.
-    name : str
-        The name of the user.
-    role : int
-        The role ID of the user.
-    perms : int
-        The permissions level of the user.
-    template : str
-        The template associated with the user.
-    _flashes : list of Any
-        A list of flash messages.
-
-    """
-
-    _permanent: bool
-    authenticated: bool
-    id: int
-    name: str
-    role: int
-    perms: int
-    template: str
-    _flashes: list[Any]
-
-
 class PyLoadCommand(StrEnum):
     """Set of status commands for the PyLoad server.
 
@@ -128,19 +94,19 @@ class PyLoadCommand(StrEnum):
 
     """
 
-    STATUS = "statusServer"
-    PAUSE = "pauseServer"
-    UNPAUSE = "unpauseServer"
-    TOGGLE_PAUSE = "togglePause"
-    ABORT_ALL = "stopAllDownloads"
-    RESTART_FAILED = "restartFailed"
-    TOGGLE_RECONNECT = "toggleReconnect"
-    DELETE_FINISHED = "deleteFinished"
+    STATUS = "status_server"
+    PAUSE = "pause_server"
+    UNPAUSE = "unpause_server"
+    TOGGLE_PAUSE = "toggle_pause"
+    ABORT_ALL = "stop_all_downloads"
+    RESTART_FAILED = "restart_failed"
+    TOGGLE_RECONNECT = "toggle_reconnect"
+    DELETE_FINISHED = "delete_finished"
     RESTART = "restart"
-    VERSION = "getServerVersion"
-    FREESPACE = "freeSpace"
-    ADD_PACKAGE = "addPackage"
-    UPLOAD_CONTAINER = "uploadContainer"
+    VERSION = "get_server_version"
+    FREESPACE = "free_space"
+    ADD_PACKAGE = "add_package"
+    UPLOAD_CONTAINER = "upload_container"
 
 
 class Destination(IntEnum):

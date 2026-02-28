@@ -3,95 +3,56 @@
 import asyncio
 from http import HTTPStatus
 from json import JSONDecodeError
-import re
 from typing import Any
+from unittest.mock import AsyncMock
 
 import aiohttp
-from aioresponses import aioresponses
 import pytest
+from yarl import URL
 
 from pyloadapi import CannotConnect, InvalidAuth, ParserError, PyLoadAPI
 from pyloadapi.types import Destination
 
-from .conftest import (
-    BYTE_DATA,
-    TEST_API_URL,
-    TEST_LOGIN_RESPONSE,
-    TEST_STATUS_RESPONSE,
-    TEST_STATUS_RESPONSE_NO_CAPTCHA,
-)
-
-
-async def test_login(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
-    """Test login."""
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/login",
-        status=HTTPStatus.OK,
-        payload=TEST_LOGIN_RESPONSE,
-    )
-
-    result = await pyload.login()
-    assert result == TEST_LOGIN_RESPONSE
-
-
-async def test_login_invalidauth(
-    pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
-) -> None:
-    """Test login."""
-    mocked_aiohttp.post(f"{TEST_API_URL}api/login", status=HTTPStatus.OK)
-
-    with pytest.raises(InvalidAuth):
-        await pyload.login()
+from .conftest import BYTE_DATA, TEST_STATUS_RESPONSE, TEST_STATUS_RESPONSE_NO_CAPTCHA
 
 
 @pytest.mark.parametrize(
-    ("method", "result"),
+    ("method", "result", "response"),
     [
-        ("version", "0.5.0"),
-        ("get_status", TEST_STATUS_RESPONSE),
-        ("pause", None),
-        ("unpause", None),
-        ("toggle_pause", None),
-        ("stop_all_downloads", None),
-        ("restart_failed", None),
-        ("toggle_reconnect", None),
-        ("delete_finished", None),
-        ("restart", None),
-        ("free_space", 100000),
+        ("version", "0.5.0", "0.5.0"),
+        ("get_status", TEST_STATUS_RESPONSE, TEST_STATUS_RESPONSE),
+        ("pause", None, ""),
+        ("unpause", None, ""),
+        ("toggle_pause", None, ""),
+        ("stop_all_downloads", None, ""),
+        ("restart_failed", None, ""),
+        ("toggle_reconnect", None, ""),
+        ("delete_finished", None, ""),
+        ("restart", None, ""),
+        ("free_space", 100000, "100000"),
     ],
 )
 async def test_api_methods(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
     method: str,
     result: Any,
+    response: str,
 ) -> None:
     """Test API methods."""
 
-    mocked_aiohttp.get(
-        f"{TEST_API_URL}api/getServerVersion",
-        payload="0.5.0",
-    )
-    mocked_aiohttp.get(
-        f"{TEST_API_URL}api/statusServer",
-        payload=TEST_STATUS_RESPONSE,
-    )
-    mocked_aiohttp.get(f"{TEST_API_URL}api/freeSpace", payload=100000)
-    mocked_aiohttp.get(re.compile(r".*"))
+    session.request.return_value.__aenter__.return_value.json.return_value = response
 
     assert await getattr(pyload, method)() == result
 
 
 async def test_status_no_captcha(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test status for pre 0.5.0 pyLoad response."""
-
-    mocked_aiohttp.get(
-        f"{TEST_API_URL}api/statusServer",
-        payload=TEST_STATUS_RESPONSE_NO_CAPTCHA,
+    session.request.return_value.__aenter__.return_value.json.return_value = (
+        TEST_STATUS_RESPONSE_NO_CAPTCHA
     )
 
     assert await pyload.get_status() == TEST_STATUS_RESPONSE_NO_CAPTCHA
@@ -115,12 +76,13 @@ async def test_status_no_captcha(
 )
 async def test_invalidauth(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
     method: str,
 ) -> None:
     """Test login."""
-
-    mocked_aiohttp.get(re.compile(r".*"), status=HTTPStatus.UNAUTHORIZED)
+    session.request.return_value.__aenter__.return_value.status = (
+        HTTPStatus.UNAUTHORIZED
+    )
 
     with pytest.raises(InvalidAuth):
         await getattr(pyload, method)()
@@ -133,7 +95,6 @@ async def test_invalidauth(
 @pytest.mark.parametrize(
     "method",
     [
-        "login",
         "version",
         "get_status",
         "pause",
@@ -149,14 +110,13 @@ async def test_invalidauth(
 )
 async def test_request_exceptions(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
     exception: Exception,
+    session: AsyncMock,
     method: str,
 ) -> None:
     """Test login request exception."""
-
-    mocked_aiohttp.get(re.compile(r".*"), exception=exception)
-    mocked_aiohttp.post(re.compile(r".*"), exception=exception)
+    session.get.return_value.__aenter__.side_effect = exception
+    session.post.return_value.__aenter__.side_effect = exception
 
     with pytest.raises(expected_exception=CannotConnect):
         await getattr(pyload, method)()
@@ -164,23 +124,17 @@ async def test_request_exceptions(
 
 @pytest.mark.parametrize(
     "method",
-    ["login", "version", "get_status"],
+    ["version", "get_status"],
 )
 async def test_parse_exceptions(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
-    monkeypatch: pytest.MonkeyPatch,
+    session: AsyncMock,
     method: str,
 ) -> None:
     """Test login."""
-    mocked_aiohttp.get(re.compile(r".*"), status=HTTPStatus.OK)
-    mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
-
-    async def json(*args: Any) -> None:
-        msg = ""
-        raise JSONDecodeError(msg, "", 0)
-
-    monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
+    session.request.return_value.__aenter__.return_value.json.side_effect = (
+        JSONDecodeError("", "", 0)
+    )
 
     with pytest.raises(expected_exception=ParserError):
         await getattr(pyload, method)()
@@ -188,32 +142,30 @@ async def test_parse_exceptions(
 
 async def test_upload_container(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test upload_container method."""
 
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/uploadContainer",
-    )
-
     await pyload.upload_container("filename.dlc", BYTE_DATA)
-    mocked_aiohttp.assert_called_once_with(
-        f"{TEST_API_URL}api/uploadContainer",
-        method="POST",
+
+    session.post.assert_called_once_with(
+        URL("https://example.com:8000/api/upload_container"),
         data={"filename": '"filename.dlc"', "data": "b'BYTE_DATA'"},
+        auth=aiohttp.BasicAuth(
+            login="test-username",
+            password="test-password",  # noqa: S106
+            encoding="latin1",
+        ),
     )
 
 
 async def test_upload_container_exception(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test upload_container exception."""
 
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/uploadContainer",
-        exception=aiohttp.ClientError,
-    )
+    session.post.return_value.__aenter__.side_effect = aiohttp.ClientError
 
     with pytest.raises(expected_exception=CannotConnect):
         await pyload.upload_container("filename.dlc", BYTE_DATA)
@@ -221,14 +173,11 @@ async def test_upload_container_exception(
 
 async def test_upload_container_unauthorized(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test upload_container authentication error."""
 
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/uploadContainer",
-        status=HTTPStatus.UNAUTHORIZED,
-    )
+    session.post.return_value.__aenter__.return_value.status = HTTPStatus.UNAUTHORIZED
 
     with pytest.raises(expected_exception=InvalidAuth):
         await pyload.upload_container("filename.dlc", BYTE_DATA)
@@ -236,30 +185,23 @@ async def test_upload_container_unauthorized(
 
 async def test_upload_container_parse_exception(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
-    monkeypatch: pytest.MonkeyPatch,
+    session: AsyncMock,
 ) -> None:
     """Test upload_container parser error."""
 
-    mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
-
-    async def json(*args: Any) -> None:
-        msg = ""
-        raise JSONDecodeError(msg, "", 0)
-
-    monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
+    session.request.return_value.__aenter__.return_value.json.side_effect = (
+        JSONDecodeError("", "", 0)
+    )
 
     with pytest.raises(expected_exception=ParserError):
         await pyload.upload_container("filename.dlc", BYTE_DATA)
 
 
-async def test_add_package(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> None:
+async def test_add_package(
+    pyload: PyLoadAPI,
+    session: AsyncMock,
+) -> None:
     """Test add_package method."""
-
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/addPackage",
-        payload=1,
-    )
 
     await pyload.add_package(
         name="Package Name",
@@ -269,28 +211,30 @@ async def test_add_package(pyload: PyLoadAPI, mocked_aiohttp: aioresponses) -> N
         ],
         destination=Destination.COLLECTOR,
     )
-    mocked_aiohttp.assert_called_once_with(
-        f"{TEST_API_URL}api/addPackage",
-        method="POST",
+
+    session.post.assert_called_once_with(
+        URL("https://example.com:8000/api/add_package"),
         data={
             "name": '"Package Name"',
             "links": '["https://example.com/file1.zip", "https://example.com/file2.iso"]',
             "dest": "0",
         },
+        auth=aiohttp.BasicAuth(
+            login="test-username",
+            password="test-password",  # noqa: S106
+            encoding="latin1",
+        ),
     )
 
 
 async def test_add_package_exception(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test add_package with exception."""
 
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/addPackage",
-        payload=1,
-        exception=aiohttp.ClientError,
-    )
+    session.post.return_value.__aenter__.side_effect = aiohttp.ClientError
+
     with pytest.raises(expected_exception=CannotConnect):
         await pyload.add_package(
             name="Package Name",
@@ -304,15 +248,12 @@ async def test_add_package_exception(
 
 async def test_add_package_unauthorized(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
+    session: AsyncMock,
 ) -> None:
     """Test add_package authentication error."""
 
-    mocked_aiohttp.post(
-        f"{TEST_API_URL}api/addPackage",
-        payload=1,
-        status=HTTPStatus.UNAUTHORIZED,
-    )
+    session.post.return_value.__aenter__.return_value.status = HTTPStatus.UNAUTHORIZED
+
     with pytest.raises(expected_exception=InvalidAuth):
         await pyload.add_package(
             name="Package Name",
@@ -326,19 +267,13 @@ async def test_add_package_unauthorized(
 
 async def test_add_package_parse_exception(
     pyload: PyLoadAPI,
-    mocked_aiohttp: aioresponses,
-    monkeypatch: pytest.MonkeyPatch,
+    session: AsyncMock,
 ) -> None:
     """Test add_package parser error."""
 
-    mocked_aiohttp.post(re.compile(r".*"), status=HTTPStatus.OK)
-
-    async def json(*args: Any) -> None:
-        msg = ""
-        raise JSONDecodeError(msg, "", 0)
-
-    monkeypatch.setattr(aiohttp.ClientResponse, "json", json)
-
+    session.request.return_value.__aenter__.return_value.json.side_effect = (
+        JSONDecodeError("", "", 0)
+    )
     with pytest.raises(expected_exception=ParserError):
         await pyload.add_package(
             name="Package Name",
