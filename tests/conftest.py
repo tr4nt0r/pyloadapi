@@ -57,13 +57,12 @@ async def aiohttp_client_session() -> AsyncGenerator[aiohttp.ClientSession, Any]
 @pytest.fixture(name="pyload")
 async def pyloadapi_client(session: aiohttp.ClientSession) -> PyLoadAPI:
     """Create pyLoad instance."""
-    pyload = PyLoadAPI(
+    return PyLoadAPI(
         session,
         TEST_API_URL,
         TEST_USERNAME,
         TEST_PASSWORD,
     )
-    return pyload
 
 
 @pytest.fixture(name="mocked_aiohttp")

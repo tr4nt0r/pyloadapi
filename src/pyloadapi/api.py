@@ -15,8 +15,13 @@ from typing import Any
 import aiohttp
 from yarl import URL
 
-from .exceptions import CannotConnect, InvalidAuth, ParserError
-from .types import Destination, LoginResponse, PyLoadCommand, StatusServerResponse
+from pyloadapi.exceptions import CannotConnect, InvalidAuth, ParserError
+from pyloadapi.types import (
+    Destination,
+    LoginResponse,
+    PyLoadCommand,
+    StatusServerResponse,
+)
 
 _LOGGER = logging.getLogger(__package__)
 
@@ -74,7 +79,10 @@ class PyLoadAPI:
         try:
             async with self._session.post(url, data=user_data) as r:
                 _LOGGER.debug(
-                    "Response from %s [%s]: %s", url, r.status, await r.text()
+                    "Response from %s [%s]: %s",
+                    url,
+                    r.status,
+                    await r.text(),
                 )
 
                 r.raise_for_status()
@@ -82,10 +90,12 @@ class PyLoadAPI:
                     data: LoginResponse = await r.json()
                 except (JSONDecodeError, TypeError, aiohttp.ContentTypeError) as e:
                     _LOGGER.debug(
-                        "Exception: Cannot parse login response:\n %s", exc_info=True
+                        "Exception: Cannot parse login response:\n %s",
+                        exc_info=True,
                     )
+                    msg = "Login failed during parsing of request response."
                     raise ParserError(
-                        "Login failed during parsing of request response."
+                        msg,
                     ) from e
                 else:
                     if not data:
@@ -96,7 +106,9 @@ class PyLoadAPI:
             raise CannotConnect from e
 
     async def get(
-        self, command: PyLoadCommand, params: dict[str, Any] | None = None
+        self,
+        command: PyLoadCommand,
+        params: dict[str, Any] | None = None,
     ) -> Any:
         """Execute a pyLoad API command.
 
@@ -139,12 +151,16 @@ class PyLoadAPI:
         try:
             async with self._session.get(url, params=params) as r:
                 _LOGGER.debug(
-                    "Response from %s [%s]: %s", r.url, r.status, await r.text()
+                    "Response from %s [%s]: %s",
+                    r.url,
+                    r.status,
+                    await r.text(),
                 )
 
                 if r.status == HTTPStatus.UNAUTHORIZED:
+                    msg = "Request failed due invalid or expired authentication cookie."
                     raise InvalidAuth(
-                        "Request failed due invalid or expired authentication cookie."
+                        msg,
                     )
                 r.raise_for_status()
                 try:
@@ -155,8 +171,9 @@ class PyLoadAPI:
                         command,
                         exc_info=True,
                     )
+                    msg = "Get {command} failed during parsing of request response."
                     raise ParserError(
-                        "Get {command} failed during parsing of request response."
+                        msg,
                     ) from e
 
                 return data
@@ -167,8 +184,9 @@ class PyLoadAPI:
                 command,
                 exc_info=True,
             )
+            msg = "Executing command {command} failed due to request exception"
             raise CannotConnect(
-                "Executing command {command} failed due to request exception"
+                msg,
             ) from e
 
     async def post(
@@ -224,12 +242,16 @@ class PyLoadAPI:
         try:
             async with self._session.post(url, data=data) as r:
                 _LOGGER.debug(
-                    "Response from %s [%s]: %s", r.url, r.status, await r.text()
+                    "Response from %s [%s]: %s",
+                    r.url,
+                    r.status,
+                    await r.text(),
                 )
 
                 if r.status == HTTPStatus.UNAUTHORIZED:
+                    msg = "Request failed due invalid or expired authentication cookie."
                     raise InvalidAuth(
-                        "Request failed due invalid or expired authentication cookie."
+                        msg,
                     )
                 r.raise_for_status()
                 try:
@@ -240,8 +262,9 @@ class PyLoadAPI:
                         command,
                         exc_info=True,
                     )
+                    msg = f"Get {command} failed during parsing of request response."
                     raise ParserError(
-                        f"Get {command} failed during parsing of request response."
+                        msg,
                     ) from e
 
                 return data
@@ -252,8 +275,9 @@ class PyLoadAPI:
                 command,
                 exc_info=True,
             )
+            msg = f"Executing command {command} failed due to request exception"
             raise CannotConnect(
-                f"Executing command {command} failed due to request exception"
+                msg,
             ) from e
 
     async def get_status(self) -> StatusServerResponse:
@@ -291,7 +315,8 @@ class PyLoadAPI:
         try:
             data: StatusServerResponse = await self.get(PyLoadCommand.STATUS)
         except CannotConnect as e:
-            raise CannotConnect("Get status failed due to request exception") from e
+            msg = "Get status failed due to request exception"
+            raise CannotConnect(msg) from e
         else:
             return data
 
@@ -323,8 +348,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.PAUSE)
         except CannotConnect as e:
+            msg = "Pausing download queue failed due to request exception"
             raise CannotConnect(
-                "Pausing download queue failed due to request exception"
+                msg,
             ) from e
 
     async def unpause(self) -> None:
@@ -355,8 +381,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.UNPAUSE)
         except CannotConnect as e:
+            msg = "Unpausing download queue failed due to request exception"
             raise CannotConnect(
-                "Unpausing download queue failed due to request exception"
+                msg,
             ) from e
 
     async def toggle_pause(self) -> None:
@@ -387,8 +414,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.TOGGLE_PAUSE)
         except CannotConnect as e:
+            msg = "Toggling pause download queue failed due to request exception"
             raise CannotConnect(
-                "Toggling pause download queue failed due to request exception"
+                msg,
             ) from e
 
     async def stop_all_downloads(self) -> None:
@@ -419,8 +447,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.ABORT_ALL)
         except CannotConnect as e:
+            msg = "Aborting all running downlods failed due to request exception"
             raise CannotConnect(
-                "Aborting all running downlods failed due to request exception"
+                msg,
             ) from e
 
     async def restart_failed(self) -> None:
@@ -451,8 +480,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.RESTART_FAILED)
         except CannotConnect as e:
+            msg = "Restarting all failed files failed due to request exception"
             raise CannotConnect(
-                "Restarting all failed files failed due to request exception"
+                msg,
             ) from e
 
     async def toggle_reconnect(self) -> None:
@@ -510,8 +540,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.DELETE_FINISHED)
         except CannotConnect as e:
+            msg = "Deleting all finished files failed due to request exception"
             raise CannotConnect(
-                "Deleting all finished files failed due to request exception"
+                msg,
             ) from e
 
     async def restart(self) -> None:
@@ -542,8 +573,9 @@ class PyLoadAPI:
         try:
             await self.get(PyLoadCommand.RESTART)
         except CannotConnect as e:
+            msg = "Restarting pyLoad core failed due to request exception"
             raise CannotConnect(
-                "Restarting pyLoad core failed due to request exception"
+                msg,
             ) from e
 
     async def version(self) -> str:
@@ -580,7 +612,8 @@ class PyLoadAPI:
             r = await self.get(PyLoadCommand.VERSION)
             return str(r)
         except CannotConnect as e:
-            raise CannotConnect("Get version failed due to request exception") from e
+            msg = "Get version failed due to request exception"
+            raise CannotConnect(msg) from e
 
     async def free_space(self) -> int:
         """Get the available free space at the download directory in bytes.
@@ -617,7 +650,8 @@ class PyLoadAPI:
             r = await self.get(PyLoadCommand.FREESPACE)
             return int(r)
         except CannotConnect as e:
-            raise CannotConnect("Get free space failed due to request exception") from e
+            msg = "Get free space failed due to request exception"
+            raise CannotConnect(msg) from e
 
     async def add_package(
         self,
@@ -675,7 +709,8 @@ class PyLoadAPI:
             )
             return int(r)
         except CannotConnect as e:
-            raise CannotConnect("Adding package failed due to request exception") from e
+            msg = "Adding package failed due to request exception"
+            raise CannotConnect(msg) from e
 
     async def upload_container(
         self,
@@ -719,6 +754,7 @@ class PyLoadAPI:
             )
 
         except CannotConnect as e:
+            msg = "Uploading container to pyLoad failed due to request exception"
             raise CannotConnect(
-                "Uploading container to pyLoad failed due to request exception"
+                msg,
             ) from e

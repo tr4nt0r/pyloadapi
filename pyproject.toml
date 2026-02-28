@@ -106,8 +106,12 @@ pythonpath = [
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff.lint]
-extend-select = ["I", "TRY", "UP", "D", "W"]
-extend-ignore = ["D213", "D202", "D203", "D213", "UP038", "TRY003"]
+extend-select = ["ALL"]
+extend-ignore = ["D213", "D202", "D203", "D213", "TRY003", "E501", "ANN401", "A005", "N818", "N812"]
+
+[tool.ruff.lint.per-file-ignores]
+"cli.py" = ["FBT001"]
+"tests/*" = ["SLF001", "S101", "S105", "ARG001", "FBT001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
