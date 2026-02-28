@@ -41,15 +41,12 @@ async def init_api(
 ) -> PyLoadAPI:
     """Initialize the PyLoadAPI."""
 
-    api = PyLoadAPI(
+    return PyLoadAPI(
         session=session,
         api_url=api_url,
         username=username,
         password=password,
     )
-    await api.login()
-
-    return api
 
 
 @click.group(invoke_without_command=True)

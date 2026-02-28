@@ -1,11 +1,9 @@
 """Fixtures for PyLoadAPI Tests."""
 
-from collections.abc import AsyncGenerator, Generator
-from typing import Any
-from unittest.mock import MagicMock, patch
+from collections.abc import Generator
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
-from aioresponses import aioresponses
 import pytest
 
 from pyloadapi import PyLoadAPI, StatusServerResponse
@@ -13,16 +11,6 @@ from pyloadapi import PyLoadAPI, StatusServerResponse
 TEST_API_URL = "https://example.com:8000/"
 TEST_USERNAME = "test-username"
 TEST_PASSWORD = "test-password"
-TEST_LOGIN_RESPONSE = {
-    "_permanent": True,
-    "authenticated": True,
-    "id": 2,
-    "name": "test-username",
-    "role": 0,
-    "perms": 0,
-    "template": "default",
-    "_flashes": [["message", "Logged in successfully"]],
-}
 
 TEST_STATUS_RESPONSE: StatusServerResponse = {
     "pause": False,
@@ -48,10 +36,15 @@ BYTE_DATA = b"BYTE_DATA"
 
 
 @pytest.fixture(name="session")
-async def aiohttp_client_session() -> AsyncGenerator[aiohttp.ClientSession, Any]:
+async def aiohttp_client_session() -> Generator[AsyncMock]:
     """Create a client session."""
-    async with aiohttp.ClientSession() as session:
-        yield session
+    mock_session = AsyncMock(spec=aiohttp.ClientSession)
+    mock_response = AsyncMock(spec=aiohttp.ClientResponse, status=200)
+
+    mock_session.request.return_value.__aenter__.return_value = mock_response
+    mock_session.get.return_value.__aenter__.return_value = mock_response
+    mock_session.post.return_value.__aenter__.return_value = mock_response
+    return mock_session
 
 
 @pytest.fixture(name="pyload")
@@ -65,11 +58,11 @@ async def pyloadapi_client(session: aiohttp.ClientSession) -> PyLoadAPI:
     )
 
 
-@pytest.fixture(name="mocked_aiohttp")
-def aioclient_mock() -> Generator[aioresponses, Any, None]:
-    """Mock Aiohttp client requests."""
-    with aioresponses() as m:
-        yield m
+# @pytest.fixture(name="mocked_aiohttp")
+# def aioclient_mock() -> Generator[aioresponses, Any, None]:
+#     """Mock Aiohttp client requests."""
+#     with aioresponses() as m:
+#         yield m
 
 
 @pytest.fixture

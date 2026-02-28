@@ -16,12 +16,7 @@ import aiohttp
 from yarl import URL
 
 from pyloadapi.exceptions import CannotConnect, InvalidAuth, ParserError
-from pyloadapi.types import (
-    Destination,
-    LoginResponse,
-    PyLoadCommand,
-    StatusServerResponse,
-)
+from pyloadapi.types import Destination, PyLoadCommand, StatusServerResponse
 
 _LOGGER = logging.getLogger(__package__)
 
@@ -54,56 +49,6 @@ class PyLoadAPI:
         self.api_url = api_url if isinstance(api_url, URL) else URL(api_url)
         self.username = username
         self.password = password
-
-    async def login(self) -> LoginResponse:
-        """Authenticate and login to the pyLoad API.
-
-        Returns
-        -------
-        LoginResponse
-            Object containing authentication response data.
-
-        Raises
-        ------
-        CannotConnect
-            If the login request fails due to a connection issue.
-        InvalidAuth
-            If authentication credentials are invalid.
-        ParserError
-            If there's an error parsing the login response.
-
-        """
-
-        user_data = {"username": self.username, "password": self.password}
-        url = self.api_url / "api/login"
-        try:
-            async with self._session.post(url, data=user_data) as r:
-                _LOGGER.debug(
-                    "Response from %s [%s]: %s",
-                    url,
-                    r.status,
-                    await r.text(),
-                )
-
-                r.raise_for_status()
-                try:
-                    data: LoginResponse = await r.json()
-                except (JSONDecodeError, TypeError, aiohttp.ContentTypeError) as e:
-                    _LOGGER.debug(
-                        "Exception: Cannot parse login response:\n %s",
-                        exc_info=True,
-                    )
-                    msg = "Login failed during parsing of request response."
-                    raise ParserError(
-                        msg,
-                    ) from e
-                else:
-                    if not data:
-                        raise InvalidAuth
-                    return data
-        except (TimeoutError, aiohttp.ClientError) as e:
-            _LOGGER.debug("Exception: Cannot login:\n %s", exc_info=True)
-            raise CannotConnect from e
 
     async def get(
         self,
@@ -149,7 +94,11 @@ class PyLoadAPI:
         """
         url = self.api_url / "api" / command.value
         try:
-            async with self._session.get(url, params=params) as r:
+            async with self._session.get(
+                url,
+                params=params,
+                auth=aiohttp.BasicAuth(self.username, self.password),
+            ) as r:
                 _LOGGER.debug(
                     "Response from %s [%s]: %s",
                     r.url,
@@ -240,7 +189,11 @@ class PyLoadAPI:
         }
 
         try:
-            async with self._session.post(url, data=data) as r:
+            async with self._session.post(
+                url,
+                data=data,
+                auth=aiohttp.BasicAuth(self.username, self.password),
+            ) as r:
                 _LOGGER.debug(
                     "Response from %s [%s]: %s",
                     r.url,
@@ -346,7 +299,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.PAUSE)
+            await self.post(PyLoadCommand.PAUSE, data={})
         except CannotConnect as e:
             msg = "Pausing download queue failed due to request exception"
             raise CannotConnect(
@@ -379,7 +332,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.UNPAUSE)
+            await self.post(PyLoadCommand.UNPAUSE, data={})
         except CannotConnect as e:
             msg = "Unpausing download queue failed due to request exception"
             raise CannotConnect(
@@ -412,7 +365,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.TOGGLE_PAUSE)
+            await self.post(PyLoadCommand.TOGGLE_PAUSE, data={})
         except CannotConnect as e:
             msg = "Toggling pause download queue failed due to request exception"
             raise CannotConnect(
@@ -445,7 +398,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.ABORT_ALL)
+            await self.post(PyLoadCommand.ABORT_ALL, data={})
         except CannotConnect as e:
             msg = "Aborting all running downlods failed due to request exception"
             raise CannotConnect(
@@ -478,7 +431,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.RESTART_FAILED)
+            await self.post(PyLoadCommand.RESTART_FAILED, data={})
         except CannotConnect as e:
             msg = "Restarting all failed files failed due to request exception"
             raise CannotConnect(
@@ -510,7 +463,7 @@ class PyLoadAPI:
         ```
 
         """
-        await self.get(PyLoadCommand.TOGGLE_RECONNECT)
+        await self.post(PyLoadCommand.TOGGLE_RECONNECT, data={})
 
     async def delete_finished(self) -> None:
         """Delete all finished files and completely finished packages in pyLoad.
@@ -538,7 +491,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.DELETE_FINISHED)
+            await self.post(PyLoadCommand.DELETE_FINISHED, data={})
         except CannotConnect as e:
             msg = "Deleting all finished files failed due to request exception"
             raise CannotConnect(
@@ -571,7 +524,7 @@ class PyLoadAPI:
 
         """
         try:
-            await self.get(PyLoadCommand.RESTART)
+            await self.post(PyLoadCommand.RESTART, data={})
         except CannotConnect as e:
             msg = "Restarting pyLoad core failed due to request exception"
             raise CannotConnect(
