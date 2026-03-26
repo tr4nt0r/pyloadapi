@@ -52,7 +52,7 @@ dependencies = [
     "pytest-asyncio==1.3.0",
     "pytest-cov==7.1.0",
     "pytest==9.0.2",
-    "ruff==0.15.7"
+    "ruff==0.15.8"
 ]
 
 [tool.hatch.envs.hatch-test]
@@ -68,7 +68,7 @@ type = "virtual"
 
 [tool.hatch.envs.hatch-static-analysis]
 dependencies = [
-    "ruff==0.15.7",
+    "ruff==0.15.8",
 ]
 config-path = "none"
 
