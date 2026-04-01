@@ -8,7 +8,10 @@ on:
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
     steps:
-      - uses: release-drafter/release-drafter/autolabeler@139054aeaa9adc52ab36ddf67437541f039b88e2 # v7
+      - uses: release-drafter/release-drafter@139054aeaa9adc52ab36ddf67437541f039b88e2 # v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
