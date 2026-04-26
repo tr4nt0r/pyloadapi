@@ -151,11 +151,7 @@ async def test_upload_container(
     session.post.assert_called_once_with(
         URL("https://example.com:8000/api/upload_container"),
         data={"filename": '"filename.dlc"', "data": "b'BYTE_DATA'"},
-        auth=aiohttp.BasicAuth(
-            login="test-username",
-            password="test-password",  # noqa: S106
-            encoding="latin1",
-        ),
+        headers={"X-API-Key": "pl_xxx"},
     )
 
 
@@ -219,11 +215,7 @@ async def test_add_package(
             "links": '["https://example.com/file1.zip", "https://example.com/file2.iso"]',
             "dest": "0",
         },
-        auth=aiohttp.BasicAuth(
-            login="test-username",
-            password="test-password",  # noqa: S106
-            encoding="latin1",
-        ),
+        headers={"X-API-Key": "pl_xxx"},
     )
 
 

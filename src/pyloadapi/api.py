@@ -28,8 +28,9 @@ class PyLoadAPI:
         self,
         session: aiohttp.ClientSession,
         api_url: str | URL,
-        username: str,
-        password: str,
+        username: str | None = None,
+        password: str | None = None,
+        api_key: str | None = None,
     ) -> None:
         """Initialize the PyLoadAPI wrapper.
 
@@ -40,15 +41,24 @@ class PyLoadAPI:
         api_url : str
             The base URL of the pyLoad API.
         username : str
-            Username for authenticating to the pyLoad API.
+            Username for authenticating to the pyLoad API (deprecated).
         password : str
-            Password for authenticating to the pyLoad API.
-
+            Password for authenticating to the pyLoad API (deprecated).
+        api_key : str
+            API key for authenticating to the pyLoad API.
         """
         self._session = session
         self.api_url = api_url if isinstance(api_url, URL) else URL(api_url)
-        self.username = username
-        self.password = password
+
+        if api_key is not None:
+            self.headers = {"X-API-Key": api_key}
+        elif username is not None and password is not None:
+            self.headers = {
+                "Authorization": aiohttp.BasicAuth(username, password).encode(),
+            }
+        else:
+            msg = "Either username and password, or api_key must be provided for authentication."
+            raise ValueError(msg)
 
     async def get(
         self,
@@ -97,7 +107,7 @@ class PyLoadAPI:
             async with self._session.get(
                 url,
                 params=params,
-                auth=aiohttp.BasicAuth(self.username, self.password),
+                headers=self.headers,
             ) as r:
                 _LOGGER.debug(
                     "Response from %s [%s]: %s",
@@ -107,7 +117,7 @@ class PyLoadAPI:
                 )
 
                 if r.status == HTTPStatus.UNAUTHORIZED:
-                    msg = "Request failed due invalid or expired authentication cookie."
+                    msg = "Request failed due invalid or expired authentication."
                     raise InvalidAuth(
                         msg,
                     )
@@ -192,7 +202,7 @@ class PyLoadAPI:
             async with self._session.post(
                 url,
                 data=data,
-                auth=aiohttp.BasicAuth(self.username, self.password),
+                headers=self.headers,
             ) as r:
                 _LOGGER.debug(
                     "Response from %s [%s]: %s",

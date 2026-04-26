@@ -36,8 +36,9 @@ def save_config(config: dict[str, Any]) -> None:
 async def init_api(
     session: aiohttp.ClientSession,
     api_url: str,
-    username: str,
-    password: str,
+    username: str | None = None,
+    password: str | None = None,
+    api_key: str | None = None,
 ) -> PyLoadAPI:
     """Initialize the PyLoadAPI."""
 
@@ -46,6 +47,7 @@ async def init_api(
         api_url=api_url,
         username=username,
         password=password,
+        api_key=api_key,
     )
 
 
@@ -53,12 +55,14 @@ async def init_api(
 @click.option("--api-url", help="Base URL of pyLoad")
 @click.option("--username", help="Username for pyLoad")
 @click.option("--password", help="Password for pyLoad")
+@click.option("--api-key", help="API key for pyLoad")
 @click.pass_context
 def cli(
     ctx: click.Context,
     api_url: str | None = None,
     username: str | None = None,
     password: str | None = None,
+    api_key: str | None = None,
 ) -> None:
     """CLI for interacting with pyLoad."""
 
@@ -69,6 +73,9 @@ def cli(
 
     if api_url:
         config["api_url"] = api_url
+
+    if api_key:
+        config["api_key"] = api_key
 
     if username:
         config["username"] = username
@@ -82,8 +89,11 @@ def cli(
     ctx.obj["api_url"] = config.get("api_url")
     ctx.obj["username"] = config.get("username")
     ctx.obj["password"] = config.get("password")
+    ctx.obj["api_key"] = config.get("api_key")
 
-    if not all([ctx.obj["api_url"], ctx.obj["username"], ctx.obj["password"]]):
+    if not all([ctx.obj["api_url"], ctx.obj["username"], ctx.obj["password"]]) and not (
+        ctx.obj["api_url"] and ctx.obj["api_key"]
+    ):
         msg = "URL, username, and password must be provided either via command line or config file."
         raise click.ClickException(
             msg,
@@ -103,6 +113,7 @@ def status(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
                 stat = await api.get_status()
                 free_space = await api.free_space()
@@ -146,6 +157,7 @@ def queue(ctx: click.Context, pause: bool, resume: bool) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
                 if pause:
                     await api.pause()
@@ -187,6 +199,7 @@ def stop_all(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.stop_all_downloads()
@@ -219,6 +232,7 @@ def retry(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.restart_failed()
@@ -251,6 +265,7 @@ def delete_finished(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.delete_finished()
@@ -283,6 +298,7 @@ def restart(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.restart()
@@ -315,6 +331,7 @@ def toggle_reconnect(ctx: click.Context) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.toggle_reconnect()
@@ -361,6 +378,7 @@ def upload_container(ctx: click.Context, container: Path) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.upload_container(
@@ -416,6 +434,7 @@ def add_package(ctx: click.Context, package_name: str, queue: bool) -> None:
                     ctx.obj["api_url"],
                     ctx.obj["username"],
                     ctx.obj["password"],
+                    ctx.obj["api_key"],
                 )
 
                 await api.add_package(
