@@ -9,6 +9,7 @@ import pytest
 from pyloadapi import PyLoadAPI, StatusServerResponse
 
 TEST_API_URL = "https://example.com:8000/"
+TEST_API_KEY = "pl_xxx"
 TEST_USERNAME = "test-username"
 TEST_PASSWORD = "test-password"
 
@@ -53,8 +54,7 @@ async def pyloadapi_client(session: aiohttp.ClientSession) -> PyLoadAPI:
     return PyLoadAPI(
         session,
         TEST_API_URL,
-        TEST_USERNAME,
-        TEST_PASSWORD,
+        api_key=TEST_API_KEY,
     )
 
 
