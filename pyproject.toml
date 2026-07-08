@@ -59,7 +59,7 @@ dependencies = [
 parallel = false
 extra-dependencies = [
   "pytest-asyncio==1.4.0",
-  "syrupy==5.5.1",
+  "syrupy==5.5.2",
   "pytest-cov==7.1.0",
   "click==8.4.1",
 ]
