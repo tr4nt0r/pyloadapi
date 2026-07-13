@@ -27,7 +27,7 @@ repos:
       args: [--check, --config, ./pyproject.toml]
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: 'v2.2.0'  # make sure this is always consistent with hatch configs
+  rev: 'v2.3.0'  # make sure this is always consistent with hatch configs
   hooks:
     - id: mypy
       args: ["--config-file=./pyproject.toml", "--install-types", "--non-interactive", "--ignore-missing-imports"]
