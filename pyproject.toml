@@ -61,7 +61,7 @@ extra-dependencies = [
   "pytest-asyncio==1.4.0",
   "syrupy==5.5.3",
   "pytest-cov==7.1.0",
-  "click==8.4.1",
+  "click==8.4.2",
 ]
 extra-args = ["--cov-report=xml", "-vv"]
 type = "virtual"
