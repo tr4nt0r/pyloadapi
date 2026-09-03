@@ -278,4 +278,4 @@ def test_get_help() -> None:
             cli,
         )
         assert result.exit_code == 0
-        assert "Usage: cli [OPTIONS] COMMAND [ARGS]..." in result.output
+        assert "Usage: cli [OPTIONS] [COMMAND] [ARGS]..." in result.output
